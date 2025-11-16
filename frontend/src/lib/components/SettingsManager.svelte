@@ -25,14 +25,14 @@
 	let loadingMembers = false;
 
 	// Supplier form fields
-	let companyName = $supplier?.name || '';
+	let companyName = '';
 	let legalName = '';
-	let email = $supplier?.contactEmail || $user?.email || '';
-	let phone = $supplier?.contactPhone || '';
-	let address = $supplier?.address || '';
+	let email = '';
+	let phone = '';
+	let address = '';
 	let city = '';
 	let country = 'KZ';
-	let description = $supplier?.description || '';
+	let description = '';
 	let website = '';
 	
 	// Email is always the owner's email and not editable
@@ -42,12 +42,61 @@
 	let error = '';
 	let success = '';
 
-	// Update form fields when supplier changes
-	$: if ($supplier) {
-		companyName = $supplier.name || '';
-		phone = $supplier.contactPhone || '';
-		address = $supplier.address || '';
-		description = $supplier.description || '';
+	// Function to load supplier data from API into form fields
+	async function loadSupplierFormData() {
+		if (!$supplier || !$user) {
+			// Reset form if no supplier
+			companyName = '';
+			legalName = '';
+			phone = '';
+			address = '';
+			city = '';
+			country = 'KZ';
+			description = '';
+			website = '';
+			return;
+		}
+		
+		try {
+			const supplierId = parseInt($supplier.id);
+			const supplierResponse = await suppliersApi.getSupplier(supplierId);
+			
+			// Populate all form fields from API response
+			companyName = supplierResponse.company_name || '';
+			legalName = supplierResponse.legal_name || '';
+			phone = supplierResponse.phone || '';
+			address = supplierResponse.address || '';
+			city = supplierResponse.city || '';
+			country = supplierResponse.country || 'KZ';
+			description = supplierResponse.description || '';
+			website = supplierResponse.website || '';
+			
+			console.log('Form fields loaded from API:', {
+				companyName,
+				legalName,
+				phone,
+				address,
+				city,
+				country,
+				description,
+				website
+			});
+		} catch (err) {
+			console.error('Failed to load supplier form data:', err);
+			// Fallback to store data if API fails
+			companyName = $supplier.name || '';
+			phone = $supplier.contactPhone || '';
+			address = $supplier.address || '';
+			description = $supplier.description || '';
+		}
+	}
+
+	// Load supplier data on mount and when supplier changes
+	let lastSupplierId: string | null = null;
+	$: if ($supplier && $user && $supplier.id !== lastSupplierId) {
+		lastSupplierId = $supplier.id;
+		// Load full data from API when supplier changes
+		loadSupplierFormData();
 	}
 
 	$: hasSupplier = !!$supplier;
@@ -67,28 +116,66 @@
 			if (hasSupplier) {
 				// Update existing supplier
 				const supplierId = parseInt($supplier!.id);
-				await suppliersApi.updateSupplier(supplierId, {
+				
+				console.log('Updating supplier:', supplierId, {
+					company_name: companyName,
+					legal_name: legalName,
+					phone,
+					address,
+					city,
+					description,
+					website,
+					country
+				});
+				
+				// Update supplier via API
+				const updatedSupplierResponse = await suppliersApi.updateSupplier(supplierId, {
 					company_name: companyName,
 					legal_name: legalName || undefined,
-					email,
 					phone: phone || undefined,
 					address: address || undefined,
 					city: city || undefined,
+					country: country || undefined,
 					description: description || undefined,
 					website: website || undefined,
 				});
 
-				// Refresh supplier data
-				const updatedSupplier = await suppliersApi.getSupplier(supplierId);
-				const mappedSupplier = mapSupplier(updatedSupplier);
+				console.log('Supplier updated, response:', updatedSupplierResponse);
+
+				// Refresh supplier data from API to get latest
+				const refreshedSupplier = await suppliersApi.getSupplier(supplierId);
+				console.log('Refreshed supplier from API:', refreshedSupplier);
+				
+				// Map to frontend format
+				const mappedSupplier = mapSupplier(refreshedSupplier);
 				mappedSupplier.ownerId = $user!.id;
 				
-				authStore.updateSupplier({
-					name: mappedSupplier.name,
-					description: mappedSupplier.description,
-					contactEmail: mappedSupplier.contactEmail,
-					contactPhone: mappedSupplier.contactPhone,
-					address: mappedSupplier.address
+				// Update localStorage FIRST
+				if (browser) {
+					localStorage.setItem('currentSupplier', JSON.stringify(mappedSupplier));
+				}
+				
+				// Update form fields with refreshed data
+				companyName = refreshedSupplier.company_name || '';
+				legalName = refreshedSupplier.legal_name || '';
+				phone = refreshedSupplier.phone || '';
+				address = refreshedSupplier.address || '';
+				city = refreshedSupplier.city || '';
+				country = refreshedSupplier.country || 'KZ';
+				description = refreshedSupplier.description || '';
+				website = refreshedSupplier.website || '';
+				
+				// Update the supplier in the store
+				// Use refresh to sync, but don't reload form data (we already have it)
+				// Reset lastSupplierId to prevent reactive statement from reloading
+				lastSupplierId = $supplier!.id; // Set to current to prevent reload
+				
+				// Refresh auth store to sync the updated supplier
+				// This will reload from API and update the store
+				// We do this in the background so it doesn't block the UI
+				authStore.refresh().catch((refreshError) => {
+					console.warn('Failed to refresh auth store, but update was successful:', refreshError);
+					// Don't fail the whole operation if refresh fails
 				});
 
 				success = 'Supplier information updated successfully!';

@@ -40,6 +40,7 @@ export interface SupplierUpdateRequest {
 	phone?: string;
 	address?: string;
 	city?: string;
+	country?: string;
 	description?: string;
 	website?: string;
 	is_active?: boolean;
