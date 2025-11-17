@@ -15,11 +15,11 @@
 	} from 'lucide-svelte';
 
 	const navigation = [
-		{ id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['owner', 'manager'], path: '/dashboard' },
-		{ id: 'links', label: 'Link Requests', icon: LinkIcon, roles: ['owner', 'manager'], path: '/links' },
-		{ id: 'catalog', label: 'Catalog', icon: Package, roles: ['owner', 'manager'], path: '/catalog' },
-		{ id: 'orders', label: 'Orders', icon: ShoppingCart, roles: ['owner', 'manager'], path: '/orders' },
-		{ id: 'team', label: 'Team', icon: Users, roles: ['owner'], path: '/team' },
+		{ id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['owner', 'manager', 'sales_representative'], path: '/dashboard' },
+		{ id: 'links', label: 'Link Requests', icon: LinkIcon, roles: ['owner', 'manager', 'sales_representative'], path: '/links' },
+		{ id: 'catalog', label: 'Catalog', icon: Package, roles: ['owner', 'manager', 'sales_representative'], path: '/catalog' },
+		{ id: 'orders', label: 'Orders', icon: ShoppingCart, roles: ['owner', 'manager', 'sales_representative'], path: '/orders' },
+		{ id: 'team', label: 'Team', icon: Users, roles: ['owner', 'manager'], path: '/team' },
 		{ id: 'settings', label: 'Settings', icon: Settings, roles: ['owner'], path: '/settings' },
 	];
 

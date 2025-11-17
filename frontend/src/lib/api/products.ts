@@ -6,44 +6,60 @@ import { apiClient } from './client';
 export interface ProductResponse {
 	id: number;
 	name: string;
-	description: string;
+	description?: string;
 	supplier_id: number;
-	price: number;
-	discount_price?: number;
+	category_id: number; // Required - products must have a category
+	price: number | string; // Backend returns Decimal as string in JSON
+	discount_price?: number | string;
+	currency?: string;
 	unit: string;
-	stock_quantity: number;
-	category?: string;
+	stock_quantity: number | string; // Backend returns Decimal as string in JSON
+	min_order_quantity?: number | string;
 	is_available: boolean;
 	is_active: boolean;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 	image_url?: string;
+	sku?: string;
 	created_at: string;
 	updated_at?: string;
 }
 
 export interface ProductCreateRequest {
 	name: string;
-	description: string;
+	description?: string;
 	supplier_id: number;
+	category_id: number; // Required - products must have a category
 	price: number;
 	discount_price?: number;
+	currency?: string;
 	unit: string;
 	stock_quantity: number;
-	category?: string;
+	min_order_quantity?: number;
 	is_available?: boolean;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 	image_url?: string;
+	sku?: string;
 }
 
 export interface ProductUpdateRequest {
 	name?: string;
 	description?: string;
+	category_id?: number;
 	price?: number;
 	discount_price?: number;
 	unit?: string;
 	stock_quantity?: number;
-	category?: string;
 	is_available?: boolean;
 	is_active?: boolean;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 	image_url?: string;
+	sku?: string;
 }
 
 export const productsApi = {

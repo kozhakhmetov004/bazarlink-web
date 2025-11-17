@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { linksApi } from '$lib/api';
+	import { linksApi, consumersApi } from '$lib/api';
 	import { mapLink } from '$lib/utils/mappers';
 	import type { LinkRequest } from '$lib/types';
+	import type { ConsumerResponse } from '$lib/api/consumers';
 	import Card from '$lib/components/ui/Card.svelte';
 	import CardContent from '$lib/components/ui/CardContent.svelte';
 	import CardHeader from '$lib/components/ui/CardHeader.svelte';
@@ -11,12 +12,21 @@
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
-	import { Check, X, Ban, Clock, Mail, AlertCircle } from 'lucide-svelte';
+	import Dialog from '$lib/components/ui/Dialog.svelte';
+	import { Check, X, Ban, Clock, Mail, AlertCircle, User, Phone, MapPin, Building2, FileText, Eye } from 'lucide-svelte';
 
-	let requests: LinkRequest[] = [];
+	interface LinkRequestWithConsumer extends LinkRequest {
+		consumerId: number; // Store consumer_id from link
+		consumer?: ConsumerResponse;
+		loadingConsumer?: boolean;
+	}
+
+	let requests: LinkRequestWithConsumer[] = [];
 	let loading = true;
 	let successMessage = '';
 	let errorMessage = '';
+	let selectedConsumer: ConsumerResponse | null = null;
+	let showConsumerModal = false;
 
 	onMount(async () => {
 		await loadLinks();
@@ -26,12 +36,45 @@
 		try {
 			loading = true;
 			const links = await linksApi.getLinks();
-			requests = links.map(link => mapLink(link));
+			requests = links.map(link => ({
+				...mapLink(link),
+				consumerId: link.consumer_id, // Store consumer_id directly
+				consumer: undefined,
+				loadingConsumer: false
+			}));
 		} catch (error) {
 			console.error('Failed to load links', error);
 			errorMessage = 'Failed to load link requests';
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function loadConsumerInfo(request: LinkRequestWithConsumer) {
+		if (request.consumer || request.loadingConsumer) return;
+		
+		try {
+			request.loadingConsumer = true;
+			const consumer = await consumersApi.getConsumer(request.consumerId);
+			request.consumer = consumer;
+		} catch (error) {
+			console.error('Failed to load consumer info', error);
+		} finally {
+			request.loadingConsumer = false;
+		}
+	}
+
+	function openConsumerProfile(request: LinkRequestWithConsumer) {
+		if (!request.consumer) {
+			loadConsumerInfo(request).then(() => {
+				if (request.consumer) {
+					selectedConsumer = request.consumer;
+					showConsumerModal = true;
+				}
+			});
+		} else {
+			selectedConsumer = request.consumer;
+			showConsumerModal = true;
 		}
 	}
 
@@ -172,6 +215,15 @@
 							</div>
 							<div class="flex gap-2">
 								<Button
+									variant="outline"
+									on:click={() => openConsumerProfile(request)}
+									className="flex-1"
+									disabled={request.loadingConsumer}
+								>
+									<Eye class="w-4 h-4 mr-2" />
+									{request.loadingConsumer ? 'Loading...' : 'View Profile'}
+								</Button>
+								<Button
 									variant="default"
 									on:click={() => handleApprove(request.id)}
 									className="flex-1 bg-green-600 hover:bg-green-700"
@@ -220,15 +272,122 @@
 									<p class="text-xs text-gray-500">{request.userEmail}</p>
 								</div>
 							</div>
-							<Badge variant="outline" className={statusConfig.color}>
-								<StatusIcon class="w-3 h-3 mr-1" />
-								{statusConfig.label}
-							</Badge>
+							<div class="flex items-center gap-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									on:click={() => openConsumerProfile(request)}
+									className="h-8 px-3"
+									disabled={request.loadingConsumer}
+								>
+									<Eye class="w-3 h-3 mr-1" />
+									View
+								</Button>
+								<Badge variant="outline" className={statusConfig.color}>
+									<StatusIcon class="w-3 h-3 mr-1" />
+									{statusConfig.label}
+								</Badge>
+							</div>
 						</div>
 					{/each}
 				</div>
 			</CardContent>
 		</Card>
 	{/if}
+
+	<!-- Consumer Profile Modal -->
+	<Dialog open={showConsumerModal} title="Consumer Profile" on:close={() => showConsumerModal = false}>
+		{#if selectedConsumer}
+			<div class="space-y-4">
+				<div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+					<div class="p-3 rounded-full bg-green-100">
+						<Building2 class="w-6 h-6 text-green-600" />
+					</div>
+					<div class="flex-1">
+						<h3 class="text-lg font-semibold text-gray-900 mb-1">{selectedConsumer.business_name}</h3>
+						{#if selectedConsumer.legal_name}
+							<p class="text-sm text-gray-600 mb-2">{selectedConsumer.legal_name}</p>
+						{/if}
+						<div class="flex items-center gap-2 text-sm text-gray-600">
+							<Badge variant="outline" className={selectedConsumer.is_active ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}>
+								{selectedConsumer.is_active ? 'Active' : 'Inactive'}
+							</Badge>
+							{#if selectedConsumer.business_type}
+								<Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+									{selectedConsumer.business_type}
+								</Badge>
+							{/if}
+						</div>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="space-y-3">
+						<div class="flex items-start gap-3">
+							<Mail class="w-5 h-5 text-gray-400 mt-0.5" />
+							<div>
+								<p class="text-xs text-gray-500 mb-1">Email</p>
+								<p class="text-sm text-gray-900">{selectedConsumer.email}</p>
+							</div>
+						</div>
+
+						{#if selectedConsumer.phone}
+							<div class="flex items-start gap-3">
+								<Phone class="w-5 h-5 text-gray-400 mt-0.5" />
+								<div>
+									<p class="text-xs text-gray-500 mb-1">Phone</p>
+									<p class="text-sm text-gray-900">{selectedConsumer.phone}</p>
+								</div>
+							</div>
+						{/if}
+
+						{#if selectedConsumer.address || selectedConsumer.city}
+							<div class="flex items-start gap-3">
+								<MapPin class="w-5 h-5 text-gray-400 mt-0.5" />
+								<div>
+									<p class="text-xs text-gray-500 mb-1">Address</p>
+									<p class="text-sm text-gray-900">
+										{#if selectedConsumer.address}{selectedConsumer.address}{/if}
+										{#if selectedConsumer.address && selectedConsumer.city}, {/if}
+										{#if selectedConsumer.city}{selectedConsumer.city}{/if}
+										{#if selectedConsumer.country && selectedConsumer.country !== 'KZ'}, {selectedConsumer.country}{/if}
+									</p>
+								</div>
+							</div>
+						{/if}
+					</div>
+
+					<div class="space-y-3">
+						{#if selectedConsumer.tax_id}
+							<div class="flex items-start gap-3">
+								<FileText class="w-5 h-5 text-gray-400 mt-0.5" />
+								<div>
+									<p class="text-xs text-gray-500 mb-1">Tax ID</p>
+									<p class="text-sm text-gray-900">{selectedConsumer.tax_id}</p>
+								</div>
+							</div>
+						{/if}
+
+						<div class="flex items-start gap-3">
+							<Clock class="w-5 h-5 text-gray-400 mt-0.5" />
+							<div>
+								<p class="text-xs text-gray-500 mb-1">Member Since</p>
+								<p class="text-sm text-gray-900">{new Date(selectedConsumer.created_at).toLocaleDateString()}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{#if selectedConsumer.description}
+					<div class="pt-4 border-t border-gray-200">
+						<p class="text-xs text-gray-500 mb-2">Description</p>
+						<p class="text-sm text-gray-700 leading-relaxed">{selectedConsumer.description}</p>
+					</div>
+				{/if}
+			</div>
+		{:else}
+			<p class="text-gray-500 text-center py-4">Loading consumer information...</p>
+		{/if}
+	</Dialog>
 </div>
 

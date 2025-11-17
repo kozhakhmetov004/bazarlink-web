@@ -35,9 +35,6 @@
 	let description = '';
 	let website = '';
 	
-	// Email is always the owner's email and not editable
-	$: email = $user?.email || '';
-	
 	let loading = false;
 	let error = '';
 	let success = '';
@@ -48,6 +45,7 @@
 			// Reset form if no supplier
 			companyName = '';
 			legalName = '';
+			email = '';
 			phone = '';
 			address = '';
 			city = '';
@@ -64,6 +62,7 @@
 			// Populate all form fields from API response
 			companyName = supplierResponse.company_name || '';
 			legalName = supplierResponse.legal_name || '';
+			email = supplierResponse.email || '';
 			phone = supplierResponse.phone || '';
 			address = supplierResponse.address || '';
 			city = supplierResponse.city || '';
@@ -74,6 +73,7 @@
 			console.log('Form fields loaded from API:', {
 				companyName,
 				legalName,
+				email,
 				phone,
 				address,
 				city,
@@ -98,6 +98,11 @@
 		// Load full data from API when supplier changes
 		loadSupplierFormData();
 	}
+	
+	// Initialize email with owner's email when creating new supplier (if email is empty)
+	$: if (!$supplier && $user && !email) {
+		email = $user.email || '';
+	}
 
 	$: hasSupplier = !!$supplier;
 	$: isOwner = $user?.role === 'owner';
@@ -120,6 +125,7 @@
 				console.log('Updating supplier:', supplierId, {
 					company_name: companyName,
 					legal_name: legalName,
+					email,
 					phone,
 					address,
 					city,
@@ -132,6 +138,7 @@
 				const updatedSupplierResponse = await suppliersApi.updateSupplier(supplierId, {
 					company_name: companyName,
 					legal_name: legalName || undefined,
+					email: email || undefined,
 					phone: phone || undefined,
 					address: address || undefined,
 					city: city || undefined,
@@ -158,6 +165,7 @@
 				// Update form fields with refreshed data
 				companyName = refreshedSupplier.company_name || '';
 				legalName = refreshedSupplier.legal_name || '';
+				email = refreshedSupplier.email || '';
 				phone = refreshedSupplier.phone || '';
 				address = refreshedSupplier.address || '';
 				city = refreshedSupplier.city || '';
@@ -184,7 +192,7 @@
 				const newSupplier = await suppliersApi.createSupplier({
 					company_name: companyName,
 					legal_name: legalName || undefined,
-					email: $user!.email, // Use owner's email
+					email: email || $user!.email, // Use provided email or fallback to owner's email
 					phone: phone || undefined,
 					address: address || undefined,
 					city: city || undefined,
@@ -310,17 +318,16 @@
 							<Label htmlFor="email" className="text-gray-700">
 								Email Address <span class="text-red-500">*</span>
 							</Label>
-							<input
-								id="email"
+							<Input 
+								id="email" 
 								type="email"
-								value={email}
+								bind:value={email}
 								placeholder="supplier@example.com"
-								class="h-10 w-full px-3 rounded-md border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed"
-								disabled
-								readonly
+								className="h-10"
+								required
 							/>
 							<p class="text-xs text-gray-500 mt-1">
-								Email is automatically set to your owner account email
+								Supplier contact email (can be different from owner email)
 							</p>
 						</div>
 
@@ -461,17 +468,16 @@
 							<Label htmlFor="email" className="text-gray-700">
 								Email Address <span class="text-red-500">*</span>
 							</Label>
-							<input
-								id="email"
+							<Input 
+								id="email" 
 								type="email"
-								value={email}
+								bind:value={email}
 								placeholder="supplier@example.com"
-								class="h-10 w-full px-3 rounded-md border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed"
-								disabled
-								readonly
+								className="h-10"
+								required
 							/>
 							<p class="text-xs text-gray-500 mt-1">
-								Email is automatically set to your owner account email
+								Supplier contact email (can be different from owner email)
 							</p>
 						</div>
 

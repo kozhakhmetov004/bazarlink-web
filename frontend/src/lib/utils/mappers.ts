@@ -9,7 +9,7 @@ export function mapUser(user: UserResponse): User {
 		id: String(user.id),
 		email: user.email,
 		name: user.full_name,
-		role: user.role === 'owner' || user.role === 'manager' ? user.role : 'owner', // Map to frontend role type
+		role: user.role, // Map role directly - all roles are now supported
 		supplierId: user.supplier_id ? String(user.supplier_id) : '',
 		createdAt: user.created_at,
 	};
@@ -29,20 +29,37 @@ export function mapSupplier(supplier: SupplierResponse): Supplier {
 }
 
 export function mapProduct(product: ProductResponse): Product {
+	// Convert Decimal strings to numbers
+	const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+	const discountPrice = product.discount_price 
+		? (typeof product.discount_price === 'string' ? parseFloat(product.discount_price) : product.discount_price)
+		: undefined;
+	const stockQuantity = typeof product.stock_quantity === 'string' 
+		? parseFloat(product.stock_quantity) 
+		: product.stock_quantity;
+	const minOrderQuantity = product.min_order_quantity
+		? (typeof product.min_order_quantity === 'string' ? parseFloat(product.min_order_quantity) : product.min_order_quantity)
+		: undefined;
+
 	return {
 		id: String(product.id),
 		name: product.name,
-		description: product.description,
-		categoryId: product.category || '', // Backend doesn't have category_id, using category string
-		price: product.discount_price || product.price,
+		description: product.description || '',
+		categoryId: String(product.category_id), // Use category_id from backend
+		price: discountPrice || price, // Display price (discount if available)
+		originalPrice: price, // Always the original price
+		discountPrice: discountPrice,
+		discount: discountPrice ? ((price - discountPrice) / price) * 100 : 0,
+		currency: product.currency || 'KZT',
 		unit: product.unit,
-		stock: product.stock_quantity,
-		discount: product.discount_price ? ((product.price - product.discount_price) / product.price) * 100 : 0,
+		stock: stockQuantity,
+		minOrderQuantity: minOrderQuantity,
 		supplierId: String(product.supplier_id),
 		imageUrl: product.image_url,
-		leadTime: '24 hours', // Default, backend doesn't have this field
-		deliveryAvailable: product.is_available,
-		pickupAvailable: product.is_available, // Default
+		sku: product.sku,
+		leadTime: product.lead_time_days ? `${product.lead_time_days} days` : '1 day',
+		deliveryAvailable: product.delivery_available ?? true,
+		pickupAvailable: product.pickup_available ?? true,
 	};
 }
 

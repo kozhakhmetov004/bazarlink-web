@@ -1,4 +1,4 @@
-export type UserRole = 'owner' | 'manager';
+export type UserRole = 'owner' | 'manager' | 'sales_representative' | 'consumer';
 
 export interface User {
   id: string;
@@ -33,12 +33,17 @@ export interface Product {
   name: string;
   description: string;
   categoryId: string;
-  price: number;
+  price: number; // Display price (discount_price if available, otherwise price)
+  originalPrice: number; // Original price before discount
+  discountPrice?: number; // Discount price if available
+  discount: number; // Discount percentage
+  currency: string;
   unit: string;
   stock: number;
-  discount: number;
+  minOrderQuantity?: number;
   supplierId: string;
   imageUrl?: string;
+  sku?: string;
   leadTime: string;
   deliveryAvailable: boolean;
   pickupAvailable: boolean;
