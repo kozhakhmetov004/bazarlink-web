@@ -29,6 +29,7 @@ export interface UserCreateRequest {
 export interface UserUpdateRequest {
 	full_name?: string;
 	phone?: string;
+	email?: string;
 	language?: string;
 	is_active?: boolean;
 }

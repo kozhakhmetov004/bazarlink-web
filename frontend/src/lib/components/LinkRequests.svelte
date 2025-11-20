@@ -13,6 +13,7 @@
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
 	import Dialog from '$lib/components/ui/Dialog.svelte';
+	import { _ } from 'svelte-i18n';
 	import { Check, X, Ban, Clock, Mail, AlertCircle, User, Phone, MapPin, Building2, FileText, Eye } from 'lucide-svelte';
 
 	interface LinkRequestWithConsumer extends LinkRequest {
@@ -122,24 +123,24 @@
 
 	function getStatusBadge(status: LinkRequest['status']) {
 		const variants = {
-			pending: { label: 'Pending', icon: Clock, color: 'bg-orange-50 text-orange-700 border-orange-200' },
-			approved: { label: 'Approved', icon: Check, color: 'bg-green-50 text-green-700 border-green-200' },
-			rejected: { label: 'Rejected', icon: X, color: 'bg-red-50 text-red-700 border-red-200' },
-			blocked: { label: 'Blocked', icon: Ban, color: 'bg-red-50 text-red-700 border-red-200' },
+			pending: { labelKey: 'common.pending', icon: Clock, color: 'bg-orange-50 text-orange-700 border-orange-200' },
+			approved: { labelKey: 'common.approved', icon: Check, color: 'bg-green-50 text-green-700 border-green-200' },
+			rejected: { labelKey: 'common.rejected', icon: X, color: 'bg-red-50 text-red-700 border-red-200' },
+			blocked: { labelKey: 'common.blocked', icon: Ban, color: 'bg-red-50 text-red-700 border-red-200' },
 		};
 		return variants[status];
 	}
 
-	function formatDate(dateString: string) {
+	function formatDate(dateString: string): string {
 		const date = new Date(dateString);
 		const now = new Date();
 		const diffMs = now.getTime() - date.getTime();
 		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 		
-		if (diffHours < 1) return 'Just now';
-		if (diffHours < 24) return `${diffHours} hours ago`;
+		if (diffHours < 1) return $_('links.justNow');
+		if (diffHours < 24) return `${diffHours} ${$_('links.hoursAgo')}`;
 		const diffDays = Math.floor(diffHours / 24);
-		return `${diffDays} days ago`;
+		return `${diffDays} ${$_('links.daysAgo')}`;
 	}
 
 	$: pendingRequests = requests.filter(r => r.status === 'pending');
@@ -149,12 +150,12 @@
 <div class="space-y-7">
 	<div class="flex items-center justify-between mb-2">
 		<div>
-			<h2 class="text-gray-900 mb-2">Link Requests</h2>
-			<p class="text-gray-600">Approve or reject buyer connection requests from the mobile app</p>
+			<h2 class="text-gray-900 mb-2">{$_('links.title')}</h2>
+			<p class="text-gray-600">{$_('links.description')}</p>
 		</div>
 		<div class="flex items-center gap-2 px-4 py-2.5 bg-orange-50 rounded-xl border border-orange-200">
 			<AlertCircle class="w-4 h-4 text-orange-600" />
-			<span class="text-sm text-orange-700">{pendingRequests.length} pending</span>
+			<span class="text-sm text-orange-700">{pendingRequests.length} {$_('links.pending')}</span>
 		</div>
 	</div>
 
@@ -175,7 +176,7 @@
 	{#if loading}
 		<Card className="border-0 shadow-md">
 			<CardContent className="p-6">
-				<p class="text-gray-500 text-center py-8">Loading link requests...</p>
+				<p class="text-gray-500 text-center py-8">{$_('links.loadingRequests')}</p>
 			</CardContent>
 		</Card>
 	{/if}
@@ -185,12 +186,12 @@
 		<CardHeader className="border-b border-gray-100 bg-gradient-to-r from-orange-50 to-white px-6 py-5">
 			<CardTitle className="flex items-center gap-2">
 				<Clock class="w-5 h-5 text-orange-600" />
-				Pending Requests ({pendingRequests.length})
+				{$_('links.pendingRequests')} ({pendingRequests.length})
 			</CardTitle>
 		</CardHeader>
 		<CardContent className="p-6">
 			{#if pendingRequests.length === 0}
-				<p class="text-gray-500 text-center py-8">No pending requests</p>
+				<p class="text-gray-500 text-center py-8">{$_('links.noPendingRequests')}</p>
 			{:else}
 				<div class="space-y-4">
 					{#each pendingRequests as request}
@@ -203,14 +204,14 @@
 										<h4 class="text-gray-900">{request.userName}</h4>
 										<Badge variant="outline" className={statusConfig.color}>
 											<StatusIcon class="w-3 h-3 mr-1" />
-											{statusConfig.label}
+											{$_(statusConfig.labelKey)}
 										</Badge>
 									</div>
 									<div class="flex items-center gap-2 text-sm text-gray-600 mb-1">
 										<Mail class="w-4 h-4" />
 										<span>{request.userEmail}</span>
 									</div>
-									<p class="text-xs text-gray-500">Requested {formatDate(request.requestedAt)}</p>
+									<p class="text-xs text-gray-500">{$_('links.requested')} {formatDate(request.requestedAt)}</p>
 								</div>
 							</div>
 							<div class="flex gap-2">
@@ -221,7 +222,7 @@
 									disabled={request.loadingConsumer}
 								>
 									<Eye class="w-4 h-4 mr-2" />
-									{request.loadingConsumer ? 'Loading...' : 'View Profile'}
+									{request.loadingConsumer ? $_('common.loading') : $_('links.viewProfile')}
 								</Button>
 								<Button
 									variant="default"
@@ -229,7 +230,7 @@
 									className="flex-1 bg-green-600 hover:bg-green-700"
 								>
 									<Check class="w-4 h-4 mr-2" />
-									Approve
+									{$_('links.approve')}
 								</Button>
 								<Button
 									variant="outline"
@@ -237,7 +238,7 @@
 									className="flex-1"
 								>
 									<X class="w-4 h-4 mr-2" />
-									Reject
+									{$_('links.reject')}
 								</Button>
 								<Button
 									variant="destructive"
@@ -258,7 +259,7 @@
 	{#if reviewedRequests.length > 0}
 		<Card className="border-0 shadow-md">
 			<CardHeader className="border-b border-gray-100 px-6 py-5">
-				<CardTitle>Reviewed Requests ({reviewedRequests.length})</CardTitle>
+				<CardTitle>{$_('links.reviewedRequests')} ({reviewedRequests.length})</CardTitle>
 			</CardHeader>
 			<CardContent className="p-6">
 				<div class="space-y-3">
@@ -281,7 +282,7 @@
 									disabled={request.loadingConsumer}
 								>
 									<Eye class="w-3 h-3 mr-1" />
-									View
+									{$_('links.view')}
 								</Button>
 								<Badge variant="outline" className={statusConfig.color}>
 									<StatusIcon class="w-3 h-3 mr-1" />
@@ -296,7 +297,7 @@
 	{/if}
 
 	<!-- Consumer Profile Modal -->
-	<Dialog open={showConsumerModal} title="Consumer Profile" on:close={() => showConsumerModal = false}>
+	<Dialog open={showConsumerModal} title={$_('links.consumerProfile')} on:close={() => showConsumerModal = false}>
 		{#if selectedConsumer}
 			<div class="space-y-4">
 				<div class="flex items-start gap-4 pb-4 border-b border-gray-200">
@@ -310,7 +311,7 @@
 						{/if}
 						<div class="flex items-center gap-2 text-sm text-gray-600">
 							<Badge variant="outline" className={selectedConsumer.is_active ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}>
-								{selectedConsumer.is_active ? 'Active' : 'Inactive'}
+								{selectedConsumer.is_active ? $_('common.active') : $_('common.inactive')}
 							</Badge>
 							{#if selectedConsumer.business_type}
 								<Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
@@ -326,7 +327,7 @@
 						<div class="flex items-start gap-3">
 							<Mail class="w-5 h-5 text-gray-400 mt-0.5" />
 							<div>
-								<p class="text-xs text-gray-500 mb-1">Email</p>
+								<p class="text-xs text-gray-500 mb-1">{$_('links.email')}</p>
 								<p class="text-sm text-gray-900">{selectedConsumer.email}</p>
 							</div>
 						</div>
@@ -335,7 +336,7 @@
 							<div class="flex items-start gap-3">
 								<Phone class="w-5 h-5 text-gray-400 mt-0.5" />
 								<div>
-									<p class="text-xs text-gray-500 mb-1">Phone</p>
+									<p class="text-xs text-gray-500 mb-1">{$_('links.phone')}</p>
 									<p class="text-sm text-gray-900">{selectedConsumer.phone}</p>
 								</div>
 							</div>
@@ -345,7 +346,7 @@
 							<div class="flex items-start gap-3">
 								<MapPin class="w-5 h-5 text-gray-400 mt-0.5" />
 								<div>
-									<p class="text-xs text-gray-500 mb-1">Address</p>
+									<p class="text-xs text-gray-500 mb-1">{$_('links.address')}</p>
 									<p class="text-sm text-gray-900">
 										{#if selectedConsumer.address}{selectedConsumer.address}{/if}
 										{#if selectedConsumer.address && selectedConsumer.city}, {/if}
@@ -362,7 +363,7 @@
 							<div class="flex items-start gap-3">
 								<FileText class="w-5 h-5 text-gray-400 mt-0.5" />
 								<div>
-									<p class="text-xs text-gray-500 mb-1">Tax ID</p>
+									<p class="text-xs text-gray-500 mb-1">{$_('links.taxId')}</p>
 									<p class="text-sm text-gray-900">{selectedConsumer.tax_id}</p>
 								</div>
 							</div>
@@ -371,7 +372,7 @@
 						<div class="flex items-start gap-3">
 							<Clock class="w-5 h-5 text-gray-400 mt-0.5" />
 							<div>
-								<p class="text-xs text-gray-500 mb-1">Member Since</p>
+								<p class="text-xs text-gray-500 mb-1">{$_('links.memberSince')}</p>
 								<p class="text-sm text-gray-900">{new Date(selectedConsumer.created_at).toLocaleDateString()}</p>
 							</div>
 						</div>
@@ -380,13 +381,13 @@
 
 				{#if selectedConsumer.description}
 					<div class="pt-4 border-t border-gray-200">
-						<p class="text-xs text-gray-500 mb-2">Description</p>
+						<p class="text-xs text-gray-500 mb-2">{$_('catalog.description')}</p>
 						<p class="text-sm text-gray-700 leading-relaxed">{selectedConsumer.description}</p>
 					</div>
 				{/if}
 			</div>
 		{:else}
-			<p class="text-gray-500 text-center py-4">Loading consumer information...</p>
+			<p class="text-gray-500 text-center py-4">{$_('links.loadingConsumer')}</p>
 		{/if}
 	</Dialog>
 </div>

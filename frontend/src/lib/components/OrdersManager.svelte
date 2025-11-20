@@ -10,6 +10,7 @@
 	import CardTitle from '$lib/components/ui/CardTitle.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
+	import { _ } from 'svelte-i18n';
 	import { Check, X, Clock, Package } from 'lucide-svelte';
 
 	let orders: Order[] = [];
@@ -84,10 +85,10 @@
 
 	function getStatusBadge(status: Order['status']) {
 		const variants = {
-			pending: { label: 'Pending', icon: Clock, color: 'text-orange-600' },
-			accepted: { label: 'Accepted', icon: Check, color: 'text-green-600' },
-			rejected: { label: 'Rejected', icon: X, color: 'text-red-600' },
-			completed: { label: 'Completed', icon: Package, color: 'text-blue-600' },
+			pending: { labelKey: 'common.pending', icon: Clock, color: 'text-orange-600' },
+			accepted: { labelKey: 'common.accepted', icon: Check, color: 'text-green-600' },
+			rejected: { labelKey: 'common.rejected', icon: X, color: 'text-red-600' },
+			completed: { labelKey: 'common.completed', icon: Package, color: 'text-blue-600' },
 		};
 		return variants[status];
 	}
@@ -103,8 +104,8 @@
 
 <div class="space-y-6">
 	<div>
-		<h2 class="text-gray-900 mb-1">Order Management</h2>
-		<p class="text-gray-600">View and manage bulk orders from buyers</p>
+		<h2 class="text-gray-900 mb-1">{$_('orders.title')}</h2>
+		<p class="text-gray-600">{$_('orders.description')}</p>
 	</div>
 
 	<!-- Pending Orders -->
@@ -112,14 +113,14 @@
 		<CardHeader>
 			<CardTitle className="flex items-center gap-2">
 				<Clock class="w-5 h-5 text-orange-600" />
-				Pending Orders ({pendingOrders.length})
+				{$_('orders.pendingOrders')} ({pendingOrders.length})
 			</CardTitle>
 		</CardHeader>
 		<CardContent>
 			{#if loading}
-				<p class="text-gray-500 text-center py-8">Loading orders...</p>
+				<p class="text-gray-500 text-center py-8">{$_('orders.loadingOrders')}</p>
 			{:else if pendingOrders.length === 0}
-				<p class="text-gray-500 text-center py-8">No pending orders</p>
+				<p class="text-gray-500 text-center py-8">{$_('orders.noPendingOrders')}</p>
 			{:else}
 				<div class="space-y-4">
 					{#each pendingOrders as order}
@@ -129,14 +130,14 @@
 							<div class="flex items-start justify-between mb-4">
 								<div>
 									<div class="flex items-center gap-3 mb-2">
-										<h4 class="text-gray-900">Order #{order.id}</h4>
+										<h4 class="text-gray-900">{$_('orders.order')} #{order.id}</h4>
 										<Badge variant={order.status === 'accepted' || order.status === 'completed' ? 'default' : 'secondary'} className={order.status === 'accepted' || order.status === 'completed' ? 'bg-green-600' : ''}>
 											<StatusIcon class="w-3 h-3 mr-1" />
-											{statusConfig.label}
+											{$_(statusConfig.labelKey)}
 										</Badge>
 									</div>
-									<p class="text-sm text-gray-600">Customer: {order.consumerName}</p>
-									<p class="text-xs text-gray-500">Placed {formatDate(order.createdAt)}</p>
+									<p class="text-sm text-gray-600">{$_('orders.customer')}: {order.consumerName}</p>
+									<p class="text-xs text-gray-500">{$_('orders.placed')} {formatDate(order.createdAt)}</p>
 								</div>
 								<div class="text-right">
 									<p class="text-green-700">
@@ -145,7 +146,7 @@
 								</div>
 							</div>
 							<div class="border-t border-gray-100 pt-4 mt-4">
-								<p class="text-sm font-medium text-gray-900 mb-2">Items:</p>
+								<p class="text-sm font-medium text-gray-900 mb-2">{$_('orders.items')}:</p>
 								<div class="space-y-2">
 									{#each order.items as item}
 										<div class="flex justify-between text-sm">
@@ -162,7 +163,7 @@
 									className="flex-1 bg-green-600 hover:bg-green-700"
 								>
 									<Check class="w-4 h-4 mr-2" />
-									Accept
+									{$_('orders.accept')}
 								</Button>
 								<Button
 									variant="destructive"
@@ -170,7 +171,7 @@
 									className="flex-1"
 								>
 									<X class="w-4 h-4 mr-2" />
-									Reject
+									{$_('orders.reject')}
 								</Button>
 							</div>
 						</div>
@@ -186,7 +187,7 @@
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Package class="w-5 h-5 text-green-600" />
-					Active Orders ({activeOrders.length})
+					{$_('orders.activeOrders')} ({activeOrders.length})
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
@@ -204,7 +205,7 @@
 									className="bg-green-600 hover:bg-green-700"
 								>
 									<Check class="w-4 h-4 mr-2" />
-									Mark Complete
+									{$_('orders.markComplete')}
 								</Button>
 							</div>
 						</div>

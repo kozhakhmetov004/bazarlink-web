@@ -4,13 +4,14 @@
 	import CardContent from '$lib/components/ui/CardContent.svelte';
 	import CardHeader from '$lib/components/ui/CardHeader.svelte';
 	import CardTitle from '$lib/components/ui/CardTitle.svelte';
+	import { _ } from 'svelte-i18n';
 	import { Package, Users, ShoppingCart, Link as LinkIcon, TrendingUp, ArrowUpRight, DollarSign, Activity } from 'lucide-svelte';
 
 	$: canViewAnalytics = $user?.role === 'owner' || $user?.role === 'manager';
 
-	const stats = [
+	$: stats = [
 		{
-			title: 'Total Products',
+			titleKey: 'dashboard.totalProducts',
 			value: '45',
 			change: '+12%',
 			icon: Package,
@@ -19,7 +20,7 @@
 			gradient: 'from-green-500 to-green-600',
 		},
 		{
-			title: 'Pending Links',
+			titleKey: 'dashboard.pendingLinks',
 			value: '8',
 			change: '+3 new',
 			icon: LinkIcon,
@@ -28,7 +29,7 @@
 			gradient: 'from-blue-500 to-blue-600',
 		},
 		{
-			title: 'Active Orders',
+			titleKey: 'dashboard.activeOrders',
 			value: '12',
 			change: '+5 today',
 			icon: ShoppingCart,
@@ -37,7 +38,7 @@
 			gradient: 'from-purple-500 to-purple-600',
 		},
 		{
-			title: 'Connected Buyers',
+			titleKey: 'dashboard.connectedBuyers',
 			value: '23',
 			change: '+8%',
 			icon: Users,
@@ -58,12 +59,12 @@
 <div class="space-y-8">
 	<div class="flex items-center justify-between mb-2">
 		<div>
-			<h2 class="text-gray-900 mb-2">Dashboard Overview</h2>
-			<p class="text-gray-600">Welcome back! Here's what's happening with your supplier business.</p>
+			<h2 class="text-gray-900 mb-2">{$_('dashboard.title')}</h2>
+			<p class="text-gray-600">{$_('dashboard.welcome')}</p>
 		</div>
 		<div class="flex items-center gap-2 px-4 py-2.5 bg-green-50 rounded-xl border border-green-200">
 			<Activity class="w-4 h-4 text-green-600" />
-			<span class="text-sm text-green-700">All systems operational</span>
+			<span class="text-sm text-green-700">{$_('dashboard.allSystemsOperational')}</span>
 		</div>
 	</div>
 
@@ -84,7 +85,7 @@
 								<span>{stat.change}</span>
 							</div>
 						</div>
-						<p class="text-sm text-gray-600 mb-1.5">{stat.title}</p>
+						<p class="text-sm text-gray-600 mb-1.5">{$_(stat.titleKey)}</p>
 						<h3 class="text-gray-900">{stat.value}</h3>
 					</CardContent>
 				</Card>
@@ -99,7 +100,7 @@
 			<CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-5">
 				<CardTitle className="flex items-center gap-2.5">
 					<Activity class="w-5 h-5 text-green-600" />
-					Recent Activity
+					{$_('dashboard.recentActivity')}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-6">
@@ -124,16 +125,16 @@
 		{#if canViewAnalytics}
 			<Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-emerald-50">
 				<CardHeader className="border-b border-green-100 px-6 py-5">
-					<CardTitle className="flex items-center gap-2.5">
-						<DollarSign class="w-5 h-5 text-green-600" />
-						Performance
-					</CardTitle>
+				<CardTitle className="flex items-center gap-2.5">
+					<DollarSign class="w-5 h-5 text-green-600" />
+					{$_('dashboard.performance')}
+				</CardTitle>
 				</CardHeader>
 				<CardContent className="p-6">
 					<div class="space-y-6">
 						<div class="space-y-3">
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-gray-700">Monthly Revenue</span>
+								<span class="text-sm text-gray-700">{$_('dashboard.monthlyRevenue')}</span>
 								<span class="text-green-700">$45,230</span>
 							</div>
 							<div class="h-2.5 bg-green-200 rounded-full overflow-hidden">
@@ -143,7 +144,7 @@
 						
 						<div class="space-y-3">
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-gray-700">Orders Completed</span>
+								<span class="text-sm text-gray-700">{$_('dashboard.ordersCompleted')}</span>
 								<span class="text-gray-900">89/100</span>
 							</div>
 							<div class="h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -153,11 +154,11 @@
 						
 						<div class="pt-4 border-t border-green-200 space-y-3">
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-gray-700">Avg Order Value</span>
+								<span class="text-sm text-gray-700">{$_('dashboard.avgOrderValue')}</span>
 								<span class="text-gray-900">$508</span>
 							</div>
 							<div class="flex items-center justify-between">
-								<span class="text-sm text-gray-700">Growth Rate</span>
+								<span class="text-sm text-gray-700">{$_('dashboard.growthRate')}</span>
 								<span class="text-green-700 flex items-center gap-1">
 									<TrendingUp class="w-4 h-4" />
 									+12%
@@ -171,12 +172,12 @@
 									<TrendingUp class="w-5 h-5 text-white" />
 								</div>
 								<div>
-									<p class="text-xs text-gray-600 mb-0.5">This Month</p>
-									<p class="text-green-700">↑ 12% increase</p>
+									<p class="text-xs text-gray-600 mb-0.5">{$_('dashboard.thisMonth')}</p>
+									<p class="text-green-700">↑ 12% {$_('dashboard.increase')}</p>
 								</div>
 							</div>
 							<p class="text-xs text-gray-600 leading-relaxed">
-								Your best month yet! Keep up the great work.
+								{$_('dashboard.bestMonth')}
 							</p>
 						</div>
 					</div>

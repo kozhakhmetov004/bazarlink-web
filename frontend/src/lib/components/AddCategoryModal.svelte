@@ -7,6 +7,7 @@
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
 	import { categoriesApi } from '$lib/api/categories';
 	import { supplier } from '$lib/stores/auth';
+	import { _ } from 'svelte-i18n';
 
 	export let open: boolean = false;
 
@@ -28,12 +29,12 @@
 
 	async function handleSubmit() {
 		if (!categoryName.trim()) {
-			error = 'Category name is required';
+			error = $_('catalog.categoryName') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 
 		if (!$supplier) {
-			error = 'Supplier not found';
+			error = $_('settings.supplierInformation') + ' not found';
 			return;
 		}
 
@@ -51,7 +52,7 @@
 			// Dispatch event to parent to reload categories
 			window.dispatchEvent(new CustomEvent('categoryCreated'));
 		} catch (err: any) {
-			error = err?.message || 'Failed to create category. Please try again.';
+			error = err?.message || $_('common.error') + ': ' + $_('catalog.addCategory');
 			console.error('Create category error:', err);
 		} finally {
 			loading = false;
@@ -64,16 +65,16 @@
 	}
 </script>
 
-<Dialog open={open} title="Add Category" on:close={handleClose}>
+<Dialog open={open} title={$_('catalog.addCategory')} on:close={handleClose}>
 	<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 		<div class="space-y-2">
 			<Label htmlFor="categoryName" className="text-gray-700">
-				Category Name <span class="text-red-500">*</span>
+				{$_('catalog.categoryName')} <span class="text-red-500">*</span>
 			</Label>
 			<Input
 				id="categoryName"
 				bind:value={categoryName}
-				placeholder="e.g., Fresh Vegetables"
+				placeholder={$_('catalog.placeholders.categoryName')}
 				className="h-10"
 				required
 				disabled={loading}
@@ -93,14 +94,14 @@
 				on:click={handleClose}
 				disabled={loading}
 			>
-				Cancel
+				{$_('common.cancel')}
 			</Button>
 			<Button
 				type="submit"
 				className="bg-green-600 hover:bg-green-700"
 				disabled={loading}
 			>
-				{loading ? 'Creating...' : 'Create Category'}
+				{loading ? $_('common.loading') : $_('catalog.addCategory')}
 			</Button>
 		</div>
 	</form>

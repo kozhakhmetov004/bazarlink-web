@@ -7,6 +7,7 @@
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
 	import { productsApi, categoriesApi } from '$lib/api';
 	import { supplier } from '$lib/stores/auth';
+	import { _ } from 'svelte-i18n';
 	import type { CategoryResponse } from '$lib/api/categories';
 
 	export let open: boolean = false;
@@ -26,14 +27,14 @@
 	let categories: CategoryResponse[] = [];
 	let loadingCategories = false;
 
-	const units = [
-		{ value: 'kg', label: 'Kilogram (kg)' },
-		{ value: 'g', label: 'Gram (g)' },
-		{ value: 'l', label: 'Liter (l)' },
-		{ value: 'ml', label: 'Milliliter (ml)' },
-		{ value: 'piece', label: 'Piece' },
-		{ value: 'box', label: 'Box' },
-		{ value: 'pack', label: 'Pack' },
+	$: units = [
+		{ value: 'kg', label: $_('catalog.units.kg') },
+		{ value: 'g', label: $_('catalog.units.g') },
+		{ value: 'l', label: $_('catalog.units.l') },
+		{ value: 'ml', label: $_('catalog.units.ml') },
+		{ value: 'piece', label: $_('catalog.units.piece') },
+		{ value: 'box', label: $_('catalog.units.box') },
+		{ value: 'pack', label: $_('catalog.units.pack') },
 	];
 
 	async function loadCategories() {
@@ -72,27 +73,27 @@
 
 	async function handleSubmit() {
 		if (!productName.trim()) {
-			error = 'Product name is required';
+			error = $_('catalog.productName') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 
 		if (!categoryId) {
-			error = 'Please select a category';
+			error = $_('catalog.category') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 
 		if (!price || parseFloat(price) <= 0) {
-			error = 'Valid price is required';
+			error = $_('catalog.price') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 
 		if (!stockQuantity || parseFloat(stockQuantity) < 0) {
-			error = 'Valid stock quantity is required';
+			error = $_('catalog.stockQuantity') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 
 		if (!$supplier) {
-			error = 'Supplier not found';
+			error = $_('settings.supplierInformation') + ' not found';
 			return;
 		}
 
@@ -120,7 +121,7 @@
 			// Dispatch event to parent to reload products
 			window.dispatchEvent(new CustomEvent('productCreated'));
 		} catch (err: any) {
-			error = err?.message || 'Failed to create product. Please try again.';
+			error = err?.message || $_('common.error') + ': ' + $_('catalog.addProduct');
 			console.error('Create product error:', err);
 		} finally {
 			loading = false;
@@ -134,16 +135,16 @@
 	}
 </script>
 
-<Dialog open={open} title="Add Product" on:close={handleClose}>
+<Dialog open={open} title={$_('catalog.addProduct')} on:close={handleClose}>
 	<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 		<div class="space-y-2">
 			<Label htmlFor="productName" className="text-gray-700">
-				Product Name <span class="text-red-500">*</span>
+				{$_('catalog.productName')} <span class="text-red-500">*</span>
 			</Label>
 			<Input
 				id="productName"
 				bind:value={productName}
-				placeholder="e.g., Fresh Tomatoes"
+				placeholder={$_('catalog.placeholders.productName')}
 				className="h-10"
 				required
 				disabled={loading}
@@ -151,11 +152,11 @@
 		</div>
 
 		<div class="space-y-2">
-			<Label htmlFor="description" className="text-gray-700">Description</Label>
+			<Label htmlFor="description" className="text-gray-700">{$_('catalog.description')}</Label>
 			<textarea
 				id="description"
 				bind:value={description}
-				placeholder="Product description..."
+				placeholder={$_('catalog.placeholders.description')}
 				class="w-full min-h-[80px] px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-y"
 				disabled={loading}
 			></textarea>
@@ -163,11 +164,11 @@
 
 		<div class="grid grid-cols-2 gap-4">
 			<div class="space-y-2">
-				<Label htmlFor="sku" className="text-gray-700">SKU</Label>
+				<Label htmlFor="sku" className="text-gray-700">{$_('catalog.sku')}</Label>
 				<Input
 					id="sku"
 					bind:value={sku}
-					placeholder="e.g., TOM-001"
+					placeholder={$_('catalog.placeholders.sku')}
 					className="h-10"
 					disabled={loading}
 				/>
@@ -175,7 +176,7 @@
 
 			<div class="space-y-2">
 				<Label htmlFor="category" className="text-gray-700">
-					Category <span class="text-red-500">*</span>
+					{$_('catalog.category')} <span class="text-red-500">*</span>
 				</Label>
 				<select
 					id="category"
@@ -184,15 +185,15 @@
 					required
 					disabled={loading || loadingCategories}
 				>
-					<option value="">Select a category</option>
+					<option value="">{$_('catalog.category')}</option>
 					{#each categories as category}
 						<option value={category.id}>{category.name}</option>
 					{/each}
 				</select>
 				{#if loadingCategories}
-					<p class="text-xs text-gray-500 mt-1">Loading categories...</p>
+					<p class="text-xs text-gray-500 mt-1">{$_('catalog.loadingCategories')}</p>
 				{:else if categories.length === 0}
-					<p class="text-xs text-red-500 mt-1">No categories available. Please create a category first.</p>
+					<p class="text-xs text-red-500 mt-1">{$_('catalog.noCategoriesAvailable')}</p>
 				{/if}
 			</div>
 		</div>
@@ -200,7 +201,7 @@
 		<div class="grid grid-cols-2 gap-4">
 			<div class="space-y-2">
 				<Label htmlFor="price" className="text-gray-700">
-					Price <span class="text-red-500">*</span>
+					{$_('catalog.price')} <span class="text-red-500">*</span>
 				</Label>
 				<Input
 					id="price"
@@ -208,7 +209,7 @@
 					step="0.01"
 					min="0"
 					bind:value={price}
-					placeholder="0.00"
+					placeholder={$_('catalog.placeholders.price')}
 					className="h-10"
 					required
 					disabled={loading}
@@ -216,14 +217,14 @@
 			</div>
 
 			<div class="space-y-2">
-				<Label htmlFor="discountPrice" className="text-gray-700">Discount Price</Label>
+				<Label htmlFor="discountPrice" className="text-gray-700">{$_('catalog.discountPrice')}</Label>
 				<Input
 					id="discountPrice"
 					type="number"
 					step="0.01"
 					min="0"
 					bind:value={discountPrice}
-					placeholder="0.00"
+					placeholder={$_('catalog.placeholders.price')}
 					className="h-10"
 					disabled={loading}
 				/>
@@ -233,7 +234,7 @@
 		<div class="grid grid-cols-3 gap-4">
 			<div class="space-y-2">
 				<Label htmlFor="stockQuantity" className="text-gray-700">
-					Stock Quantity <span class="text-red-500">*</span>
+					{$_('catalog.stockQuantity')} <span class="text-red-500">*</span>
 				</Label>
 				<Input
 					id="stockQuantity"
@@ -241,7 +242,7 @@
 					step="0.01"
 					min="0"
 					bind:value={stockQuantity}
-					placeholder="0"
+					placeholder={$_('catalog.placeholders.stock')}
 					className="h-10"
 					required
 					disabled={loading}
@@ -250,7 +251,7 @@
 
 			<div class="space-y-2">
 				<Label htmlFor="unit" className="text-gray-700">
-					Unit <span class="text-red-500">*</span>
+					{$_('catalog.unit')} <span class="text-red-500">*</span>
 				</Label>
 				<select
 					id="unit"
@@ -266,7 +267,7 @@
 			</div>
 
 			<div class="space-y-2">
-				<Label htmlFor="minOrderQuantity" className="text-gray-700">Min Order Qty</Label>
+				<Label htmlFor="minOrderQuantity" className="text-gray-700">{$_('catalog.minOrderQty')}</Label>
 				<Input
 					id="minOrderQuantity"
 					type="number"
@@ -281,7 +282,7 @@
 		</div>
 
 		<div class="space-y-2">
-			<Label htmlFor="imageUrl" className="text-gray-700">Product Image URL</Label>
+			<Label htmlFor="imageUrl" className="text-gray-700">{$_('catalog.imageUrl')}</Label>
 			<Input
 				id="imageUrl"
 				type="url"
@@ -291,7 +292,7 @@
 				disabled={loading}
 			/>
 			<p class="text-xs text-gray-500 mt-1">
-				Enter a URL to an image of the product
+				{$_('catalog.imageUrlHint')}
 			</p>
 			{#if imageUrl.trim()}
 				<div class="mt-2">
@@ -320,14 +321,14 @@
 				on:click={handleClose}
 				disabled={loading}
 			>
-				Cancel
+				{$_('common.cancel')}
 			</Button>
 			<Button
 				type="submit"
 				className="bg-green-600 hover:bg-green-700"
 				disabled={loading || categories.length === 0}
 			>
-				{loading ? 'Creating...' : 'Create Product'}
+				{loading ? $_('common.loading') : $_('catalog.addProduct')}
 			</Button>
 		</div>
 	</form>

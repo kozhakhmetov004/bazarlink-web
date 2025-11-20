@@ -9,6 +9,7 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
+	import { _ } from 'svelte-i18n';
 	import { Users, Plus, Trash2 } from 'lucide-svelte';
 	import { usersApi } from '$lib/api/users';
 	import { onMount } from 'svelte';
@@ -50,7 +51,7 @@
 	}
 
 	async function handleDeleteMember(memberId: number, memberName: string, memberRole: string) {
-		if (!confirm(`Are you sure you want to delete ${memberName} (${memberRole})? This action cannot be undone.`)) {
+		if (!confirm($_('team.deleteConfirm', { values: { name: memberName, role: memberRole } }))) {
 			return;
 		}
 
@@ -62,7 +63,7 @@
 			// Reload team members after successful deletion
 			await loadTeamMembers();
 		} catch (err: any) {
-			deleteError = err?.message || 'Failed to delete team member. Please try again.';
+			deleteError = err?.message || $_('team.failedToDelete');
 			console.error('Delete member error:', err);
 		} finally {
 			deletingMemberId = null;
@@ -96,8 +97,8 @@
 
 <div class="space-y-6">
 	<div>
-		<h2 class="text-gray-900 mb-1">Team Management</h2>
-		<p class="text-gray-600">Manage your team members and their roles</p>
+		<h2 class="text-gray-900 mb-1">{$_('team.title')}</h2>
+		<p class="text-gray-600">{$_('team.description')}</p>
 	</div>
 
 	{#if canManageTeam}
@@ -107,39 +108,37 @@
 					<div>
 						<CardTitle className="flex items-center gap-2">
 							<Users class="w-5 h-5 text-green-600" />
-							Team Members
+							{$_('team.teamMembers')}
 						</CardTitle>
 						<CardDescription className="mt-1">
 							{#if isOwner}
-								Manage your team members (Managers and Sales Representatives)
+								{$_('team.manageManagers')}
 							{:else if isManager}
-								Manage Sales Representatives
+								{$_('team.manageSalesReps')}
 							{/if}
 						</CardDescription>
 					</div>
-					{#if isOwner}
-						<button
-							type="button"
-							on:click={() => {
-								showAddMemberModal = true;
-							}}
-							class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all bg-green-600 hover:bg-green-700 text-white h-9 px-4 py-2"
-						>
-							<Plus class="w-4 h-4" />
-							Add Member
-						</button>
-					{/if}
+					<button
+						type="button"
+						on:click={() => {
+							showAddMemberModal = true;
+						}}
+						class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all bg-green-600 hover:bg-green-700 text-white h-9 px-4 py-2"
+					>
+						<Plus class="w-4 h-4" />
+						{isManager ? $_('team.addSalesRepresentative') : $_('team.addMember')}
+					</button>
 				</div>
 			</CardHeader>
 			<CardContent>
 				{#if loadingMembers}
-					<div class="text-center py-8 text-gray-500">Loading team members...</div>
+					<div class="text-center py-8 text-gray-500">{$_('team.loadingMembers')}</div>
 				{:else if teamMembers.length === 0}
 					<div class="text-center py-8 text-gray-500">
 						{#if isOwner}
-							No team members yet. Click "Add Member" to get started.
+							{$_('team.noMembers')}
 						{:else}
-							No sales representatives yet.
+							{$_('team.noSalesReps')}
 						{/if}
 					</div>
 				{:else}
@@ -163,11 +162,11 @@
 									<div class="text-sm text-gray-500">
 										{#if member.is_active}
 											<span class="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-												Active
+												{$_('common.active')}
 											</span>
 										{:else}
 											<span class="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-												Inactive
+												{$_('common.inactive')}
 											</span>
 										{/if}
 									</div>
@@ -181,7 +180,7 @@
 											className="h-8 px-3 bg-red-600 hover:bg-red-700"
 										>
 											{#if deletingMemberId === member.id}
-												Deleting...
+												{$_('team.deleting')}
 											{:else}
 												<Trash2 class="w-4 h-4" />
 											{/if}
@@ -195,18 +194,17 @@
 			</CardContent>
 		</Card>
 
-		{#if isOwner}
-			<AddTeamMemberModal
-				bind:open={showAddMemberModal}
-				on:close={() => showAddMemberModal = false}
-				on:created={handleMemberCreated}
-			/>
-		{/if}
+		<AddTeamMemberModal
+			bind:open={showAddMemberModal}
+			on:close={() => showAddMemberModal = false}
+			on:created={handleMemberCreated}
+			{isManager}
+		/>
 	{:else}
 		<Card>
 			<CardContent>
 				<p class="text-gray-500 text-center py-8">
-					You need to be an owner or manager to manage team members.
+					{$_('team.noAccess')}
 				</p>
 			</CardContent>
 		</Card>

@@ -24,8 +24,9 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "lucide-svelte": "^0.294.0",
     "clsx": "^2.0.0",
+    "lucide-svelte": "^0.294.0",
+    "svelte-i18n": "^4.0.1",
     "tailwind-merge": "^2.2.0"
   },
   "type": "module"

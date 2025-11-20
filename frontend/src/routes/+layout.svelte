@@ -6,11 +6,17 @@
 	import { authStore, user } from '$lib/stores/auth';
 	import Layout from '$lib/components/Layout.svelte';
 	import LoginLayout from '$lib/components/LoginLayout.svelte';
+	import '$lib/i18n';
+	import { currentLocale } from '$lib/stores/i18n';
 
 	let mounted = false;
 	
 	onMount(() => {
 		mounted = true;
+		// Initialize locale from store
+		currentLocale.subscribe((loc) => {
+			// Locale is already set in the store
+		});
 	});
 
 	$: isAuthenticated = $user !== null;

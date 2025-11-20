@@ -44,6 +44,7 @@ export interface SupplierUpdateRequest {
 	description?: string;
 	website?: string;
 	is_active?: boolean;
+	owner_email?: string;
 }
 
 export const suppliersApi = {

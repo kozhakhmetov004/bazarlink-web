@@ -15,6 +15,7 @@
 	import EditCategoryModal from '$lib/components/EditCategoryModal.svelte';
 	import EditProductModal from '$lib/components/EditProductModal.svelte';
 	import { Plus, Package, Edit } from 'lucide-svelte';
+	import { _ } from 'svelte-i18n';
 	import type { ProductResponse } from '$lib/api/products';
 
 	$: canManageProducts = $user?.role === 'owner' || $user?.role === 'manager';
@@ -97,14 +98,8 @@
 
 <div class="space-y-6">
 	<div>
-		<h2 class="text-gray-900 mb-1">Catalog Management</h2>
-		<p class="text-gray-600">
-			{#if canManageProducts}
-				Manage your product categories and inventory
-			{:else}
-				View your product catalog
-			{/if}
-		</p>
+		<h2 class="text-gray-900 mb-1">{$_('catalog.title')}</h2>
+		<p class="text-gray-600">{$_('catalog.description')}</p>
 	</div>
 
 	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -114,7 +109,7 @@
 				<div class="flex items-center justify-between">
 					<CardTitle className="flex items-center gap-2">
 						<Package class="w-5 h-5 text-green-600" />
-						Categories
+						{$_('catalog.categories')}
 					</CardTitle>
 					{#if canManageProducts}
 						<Button 
@@ -134,7 +129,7 @@
 						class="w-full text-left px-4 py-2 rounded-lg transition-colors cursor-pointer {!selectedCategoryId ? 'bg-green-50 text-green-700 font-medium' : 'hover:bg-gray-50 text-gray-700'}"
 						on:click={() => selectedCategoryId = null}
 					>
-						All Products ({products.length})
+						{$_('catalog.allCategories')} ({products.length})
 					</button>
 					{#each categories as category}
 						{@const productCount = products.filter(p => p.categoryId === String(category.id)).length}
@@ -156,7 +151,7 @@
 									type="button"
 									class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-opacity"
 									on:click={(e) => handleEditCategory(category, e)}
-									title="Edit category"
+									title={$_('catalog.editCategory')}
 								>
 									<Edit class="w-4 h-4 text-gray-600" />
 								</button>
@@ -166,9 +161,9 @@
 					{#if categories.length === 0 && !loading}
 						<p class="text-xs text-gray-500 text-center py-2">
 							{#if canManageProducts}
-								No categories yet. Click + to add one.
+								{$_('catalog.noCategories')}
 							{:else}
-								No categories available.
+								{$_('catalog.noCategoriesAvailable')}
 							{/if}
 						</p>
 					{/if}
@@ -180,7 +175,7 @@
 		<Card className="lg:col-span-2">
 			<CardHeader>
 				<div class="flex items-center justify-between">
-					<CardTitle>Products ({filteredProducts.length})</CardTitle>
+					<CardTitle>{$_('catalog.products')} ({filteredProducts.length})</CardTitle>
 					{#if canManageProducts}
 						<Button 
 							variant="default"
@@ -190,16 +185,16 @@
 							disabled={categories.length === 0}
 						>
 							<Plus class="w-4 h-4 mr-2" />
-							Add Product
+							{$_('catalog.addProduct')}
 						</Button>
 					{/if}
 				</div>
 			</CardHeader>
 			<CardContent>
 				{#if loading}
-					<p class="text-gray-500 text-center py-8">Loading products...</p>
+					<p class="text-gray-500 text-center py-8">{$_('catalog.loadingProducts')}</p>
 				{:else if filteredProducts.length === 0}
-					<p class="text-gray-500 text-center py-8">No products found</p>
+					<p class="text-gray-500 text-center py-8">{$_('catalog.noProducts')}</p>
 				{:else}
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						{#each filteredProducts as product}
@@ -234,7 +229,7 @@
 										type="button"
 										class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-2 rounded-full bg-white shadow-md hover:bg-gray-50 transition-opacity z-10"
 										on:click={() => handleEditProduct(product)}
-										title="Edit product"
+										title={$_('catalog.editProduct')}
 									>
 										<Edit class="w-4 h-4 text-gray-600" />
 									</button>
@@ -243,7 +238,7 @@
 									<div class="flex items-start justify-between mb-2">
 										<h4 class="text-gray-900 font-medium flex-1">{product.name}</h4>
 										{#if product.sku}
-											<span class="text-xs text-gray-400 ml-2">SKU: {product.sku}</span>
+											<span class="text-xs text-gray-400 ml-2">{$_('catalog.sku')}: {product.sku}</span>
 										{/if}
 									</div>
 									{#if product.description}
@@ -274,21 +269,21 @@
 									<!-- Product Details -->
 									<div class="space-y-1.5 text-xs text-gray-600 border-t border-gray-100 pt-3">
 										<div class="flex items-center justify-between">
-											<span class="text-gray-500">Stock:</span>
+											<span class="text-gray-500">{$_('catalog.stock')}:</span>
 											<span class="font-medium {product.stock > 0 ? 'text-green-600' : 'text-red-600'}">
 												{product.stock.toFixed(2)} {product.unit}
 											</span>
 										</div>
 										{#if product.minOrderQuantity}
 											<div class="flex items-center justify-between">
-												<span class="text-gray-500">Min Order:</span>
+												<span class="text-gray-500">{$_('catalog.minOrder')}:</span>
 												<span class="font-medium text-gray-700">
 													{product.minOrderQuantity.toFixed(2)} {product.unit}
 												</span>
 											</div>
 										{/if}
 										<div class="flex items-center justify-between">
-											<span class="text-gray-500">Lead Time:</span>
+											<span class="text-gray-500">{$_('catalog.leadTime')}:</span>
 											<span class="font-medium text-gray-700">{product.leadTime}</span>
 										</div>
 										<div class="flex items-center justify-between pt-1">

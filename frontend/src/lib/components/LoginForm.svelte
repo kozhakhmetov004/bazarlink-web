@@ -10,6 +10,8 @@
 	import CardContent from '$lib/components/ui/CardContent.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+	import { _ } from 'svelte-i18n';
 	import { Store, ArrowRight, Sparkles } from 'lucide-svelte';
 
 	let isRegister = false;
@@ -45,13 +47,13 @@
 			console.log('[LoginForm] Auth result:', { success });
 
 			if (!success) {
-				error = isRegister ? 'Registration failed. Please check your information and try again.' : 'Invalid email or password';
+				error = isRegister ? $_('auth.registrationFailed') : $_('auth.invalidCredentials');
 			} else {
 				// Success - navigation will happen automatically via reactive statement in parent
 			}
 		} catch (err: any) {
 			// Get user-friendly error message
-			const errorMessage = err?.message || 'An error occurred. Please try again.';
+			const errorMessage = err?.message || $_('auth.errorOccurred');
 			
 			// Only log unexpected errors (not authentication failures)
 			if (!errorMessage.includes('Incorrect') && 
@@ -86,20 +88,23 @@
 					</div>
 				</div>
 			</div>
+			<div class="absolute top-4 right-4">
+				<LanguageSwitcher />
+			</div>
 			<CardTitle className="text-gray-900">
-				{isRegister ? 'Create Your Supplier Account' : 'Welcome Back'}
+				{isRegister ? $_('auth.createAccount') : $_('auth.welcomeBack')}
 			</CardTitle>
 			<CardDescription className="text-base mt-2">
 				{isRegister
-					? 'Start managing your supplier business today'
-					: 'Sign in to your supplier dashboard'}
+					? $_('auth.registerDescription')
+					: $_('auth.signInDescription')}
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
 			<form on:submit|preventDefault={handleSubmit} class="space-y-5">
 				{#if isRegister}
 					<div class="space-y-2">
-						<Label htmlFor="name" className="text-gray-700">Your Full Name</Label>
+						<Label htmlFor="name" className="text-gray-700">{$_('auth.fullName')}</Label>
 						<Input
 							id="name"
 							type="text"
@@ -110,7 +115,7 @@
 						/>
 					</div>
 					<div class="space-y-2">
-						<Label htmlFor="supplierName" className="text-gray-700">Supplier Business Name</Label>
+						<Label htmlFor="supplierName" className="text-gray-700">{$_('auth.supplierName')}</Label>
 						<Input
 							id="supplierName"
 							type="text"
@@ -121,7 +126,7 @@
 						/>
 					</div>
 					<div class="space-y-2">
-						<Label htmlFor="phone" className="text-gray-700">Phone Number (Optional)</Label>
+						<Label htmlFor="phone" className="text-gray-700">{$_('auth.phone')}</Label>
 						<Input
 							id="phone"
 							type="tel"
@@ -133,7 +138,7 @@
 				{/if}
 				
 				<div class="space-y-2">
-					<Label htmlFor="email" className="text-gray-700">Email Address</Label>
+					<Label htmlFor="email" className="text-gray-700">{$_('auth.email')}</Label>
 					<Input
 						id="email"
 						type="email"
@@ -145,7 +150,7 @@
 				</div>
 
 				<div class="space-y-2">
-					<Label htmlFor="password" className="text-gray-700">Password</Label>
+					<Label htmlFor="password" className="text-gray-700">{$_('auth.password')}</Label>
 					<Input
 						id="password"
 						type="password"
@@ -170,11 +175,11 @@
 					{#if loading}
 						<span class="flex items-center gap-2">
 							<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-							Please wait...
+							{$_('auth.pleaseWait')}
 						</span>
 					{:else}
 						<span class="flex items-center gap-2">
-							{isRegister ? 'Create Account' : 'Sign In'}
+							{isRegister ? $_('auth.createAccountButton') : $_('auth.signIn')}
 							<ArrowRight class="w-4 h-4" />
 						</span>
 					{/if}
@@ -196,8 +201,8 @@
 						class="text-sm text-green-600 hover:text-green-700 hover:underline transition-colors"
 					>
 						{isRegister
-							? 'Already have an account? Sign in'
-							: "Don't have an account? Register as Owner"}
+							? $_('auth.alreadyHaveAccount')
+							: $_('auth.noAccount')}
 					</button>
 				</div>
 
