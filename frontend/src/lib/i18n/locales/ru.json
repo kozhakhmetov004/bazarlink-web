@@ -30,7 +30,8 @@
 		"roles": {
 			"owner": "Владелец",
 			"manager": "Менеджер",
-			"sales_representative": "Торговый представитель"
+			"sales_representative": "Торговый представитель",
+			"consumer": "Потребитель"
 		}
 	},
 	"nav": {
@@ -38,6 +39,7 @@
 		"links": "Запросы на связь",
 		"catalog": "Каталог",
 		"orders": "Заказы",
+		"complaints": "Эскалированные жалобы",
 		"team": "Команда",
 		"settings": "Настройки",
 		"logout": "Выйти"
@@ -229,6 +231,11 @@
 		"transferSupplierAcknowledgment": "Я подтверждаю, что передаю доступ к поставщику другому владельцу",
 		"ownerEmail": "Email владельца",
 		"ownerEmailHint": "Введите email адрес нового владельца",
+		"deliveryOptions": "Варианты доставки",
+		"deliveryAvailable": "Доставка доступна",
+		"pickupAvailable": "Самовывоз доступен",
+		"leadTimeDays": "Время выполнения (дни)",
+		"leadTimeDaysHint": "Количество дней до доставки/самовывоза по умолчанию",
 		"placeholders": {
 			"ownerEmail": "new.owner@example.com",
 			"companyName": "Fresh Foods Inc.",
@@ -252,6 +259,41 @@
 		"english": "Английский",
 		"russian": "Русский",
 		"kazakh": "Казахский"
+	},
+	"complaints": {
+		"title": "Жалобы",
+		"description": "Просмотр и управление эскалированными жалобами от торговых представителей",
+		"ownerDescription": "Просмотр всех жалоб для вашего поставщика",
+		"noComplaints": "Нет эскалированных жалоб",
+		"loadingComplaints": "Загрузка жалоб...",
+		"failedToLoad": "Не удалось загрузить жалобы",
+		"complaint": "Жалоба",
+		"order": "Заказ",
+		"status": "Статус",
+		"escalatedBy": "Эскалировано",
+		"escalatedAt": "Эскалировано в",
+		"viewDetails": "Просмотр деталей",
+		"open": "Открыто",
+		"inProgress": "В процессе",
+		"escalated": "Эскалировано",
+		"resolved": "Решено",
+		"detailTitle": "Детали жалобы",
+		"chat": "Чат",
+		"sendMessage": "Отправить сообщение",
+		"messagePlaceholder": "Введите ваше сообщение...",
+		"resolve": "Решить",
+		"resolving": "Решение...",
+		"resolveSuccess": "Жалоба успешно решена",
+		"resolveError": "Не удалось решить жалобу",
+		"sendError": "Не удалось отправить сообщение",
+		"loadingMessages": "Загрузка сообщений...",
+		"noMessages": "Пока нет сообщений",
+		"titleLabel": "Заголовок",
+		"descriptionLabel": "Описание",
+		"createdAt": "Создано",
+		"you": "Вы",
+		"resolveConfirm": "Вы уверены, что хотите решить эту жалобу?",
+		"viewOnlyMode": "Режим просмотра: Вы можете просматривать жалобу и историю чата, но не можете отправлять сообщения или решать жалобы."
 	}
 }
 

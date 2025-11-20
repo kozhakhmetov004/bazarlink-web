@@ -44,6 +44,9 @@
 	let country = 'KZ';
 	let description = '';
 	let website = '';
+	let deliveryAvailable = true;
+	let pickupAvailable = true;
+	let leadTimeDays = 1;
 	
 	let loading = false;
 	let error = '';
@@ -62,6 +65,9 @@
 			country = 'KZ';
 			description = '';
 			website = '';
+			deliveryAvailable = true;
+			pickupAvailable = true;
+			leadTimeDays = 1;
 			return;
 		}
 		
@@ -79,6 +85,9 @@
 			country = supplierResponse.country || 'KZ';
 			description = supplierResponse.description || '';
 			website = supplierResponse.website || '';
+			deliveryAvailable = supplierResponse.delivery_available ?? true;
+			pickupAvailable = supplierResponse.pickup_available ?? true;
+			leadTimeDays = supplierResponse.lead_time_days ?? 1;
 			
 			console.log('Form fields loaded from API:', {
 				companyName,
@@ -178,6 +187,9 @@
 					country: country || undefined,
 					description: description || undefined,
 					website: website || undefined,
+					delivery_available: deliveryAvailable,
+					pickup_available: pickupAvailable,
+					lead_time_days: leadTimeDays,
 				});
 
 				console.log('Supplier updated, response:', updatedSupplierResponse);
@@ -205,6 +217,9 @@
 				country = refreshedSupplier.country || 'KZ';
 				description = refreshedSupplier.description || '';
 				website = refreshedSupplier.website || '';
+				deliveryAvailable = refreshedSupplier.delivery_available ?? true;
+				pickupAvailable = refreshedSupplier.pickup_available ?? true;
+				leadTimeDays = refreshedSupplier.lead_time_days ?? 1;
 				
 				// Update the supplier in the store
 				// Use refresh to sync, but don't reload form data (we already have it)
@@ -232,6 +247,9 @@
 					country: country || 'KZ',
 					description: description || undefined,
 					website: website || undefined,
+					delivery_available: deliveryAvailable,
+					pickup_available: pickupAvailable,
+					lead_time_days: leadTimeDays,
 				});
 
 				// Refresh auth store to get updated user with supplier_id
@@ -598,6 +616,54 @@
 								placeholder={$_('settings.placeholders.website')}
 								className="h-10"
 							/>
+						</div>
+
+						<!-- Delivery Options Section -->
+						<div class="space-y-4 pt-4 border-t border-gray-200">
+							<h3 class="text-sm font-semibold text-gray-900">{$_('settings.deliveryOptions')}</h3>
+							
+							<div class="space-y-3">
+								<div class="flex items-start gap-3">
+									<input
+										type="checkbox"
+										id="deliveryAvailable"
+										bind:checked={deliveryAvailable}
+										class="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+									/>
+									<Label htmlFor="deliveryAvailable" className="text-gray-700 cursor-pointer">
+										{$_('settings.deliveryAvailable')}
+									</Label>
+								</div>
+								
+								<div class="flex items-start gap-3">
+									<input
+										type="checkbox"
+										id="pickupAvailable"
+										bind:checked={pickupAvailable}
+										class="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+									/>
+									<Label htmlFor="pickupAvailable" className="text-gray-700 cursor-pointer">
+										{$_('settings.pickupAvailable')}
+									</Label>
+								</div>
+							</div>
+
+							<div class="space-y-2">
+								<Label htmlFor="leadTimeDays" className="text-gray-700">
+									{$_('settings.leadTimeDays')}
+								</Label>
+								<Input 
+									id="leadTimeDays" 
+									type="number"
+									min="1"
+									bind:value={leadTimeDays}
+									placeholder="1"
+									className="h-10"
+								/>
+								<p class="text-xs text-gray-500 mt-1">
+									{$_('settings.leadTimeDaysHint')}
+								</p>
+							</div>
 						</div>
 
 						{#if error}

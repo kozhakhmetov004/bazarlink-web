@@ -16,6 +16,9 @@ export interface SupplierResponse {
 	country: string;
 	description?: string;
 	website?: string;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 	is_active: boolean;
 	created_at: string;
 	updated_at?: string;
@@ -31,6 +34,9 @@ export interface SupplierCreateRequest {
 	country?: string;
 	description?: string;
 	website?: string;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 }
 
 export interface SupplierUpdateRequest {
@@ -43,6 +49,9 @@ export interface SupplierUpdateRequest {
 	country?: string;
 	description?: string;
 	website?: string;
+	delivery_available?: boolean;
+	pickup_available?: boolean;
+	lead_time_days?: number;
 	is_active?: boolean;
 	owner_email?: string;
 }

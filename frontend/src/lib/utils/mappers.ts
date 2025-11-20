@@ -28,7 +28,7 @@ export function mapSupplier(supplier: SupplierResponse): Supplier {
 	};
 }
 
-export function mapProduct(product: ProductResponse): Product {
+export function mapProduct(product: ProductResponse, supplier?: { delivery_available?: boolean; pickup_available?: boolean; lead_time_days?: number }): Product {
 	// Convert Decimal strings to numbers
 	const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
 	const discountPrice = product.discount_price 
@@ -40,6 +40,9 @@ export function mapProduct(product: ProductResponse): Product {
 	const minOrderQuantity = product.min_order_quantity
 		? (typeof product.min_order_quantity === 'string' ? parseFloat(product.min_order_quantity) : product.min_order_quantity)
 		: undefined;
+
+	// Use product-specific lead_time_days if available, otherwise fall back to supplier
+	const leadTimeDays = product.lead_time_days ?? supplier?.lead_time_days ?? 1;
 
 	return {
 		id: String(product.id),
@@ -57,9 +60,7 @@ export function mapProduct(product: ProductResponse): Product {
 		supplierId: String(product.supplier_id),
 		imageUrl: product.image_url,
 		sku: product.sku,
-		leadTime: product.lead_time_days ? `${product.lead_time_days} days` : '1 day',
-		deliveryAvailable: product.delivery_available ?? true,
-		pickupAvailable: product.pickup_available ?? true,
+		leadTime: `${leadTimeDays} ${leadTimeDays === 1 ? 'day' : 'days'}`,
 	};
 }
 
@@ -78,6 +79,9 @@ export function mapLink(link: LinkResponse, consumerName?: string, consumerEmail
 }
 
 export function mapOrder(order: OrderResponse, consumerName?: string): Order {
+	// Convert Decimal strings to numbers
+	const totalAmount = typeof order.total === 'string' ? parseFloat(order.total) : order.total;
+	
 	return {
 		id: String(order.id),
 		consumerId: String(order.consumer_id),
@@ -87,9 +91,9 @@ export function mapOrder(order: OrderResponse, consumerName?: string): Order {
 			productId: String(item.product_id),
 			productName: '', // Will be filled by component
 			quantity: item.quantity,
-			price: item.unit_price,
+			price: typeof item.unit_price === 'string' ? parseFloat(item.unit_price) : item.unit_price,
 		})),
-		totalAmount: order.total,
+		totalAmount: totalAmount,
 		status: order.status === 'accepted' ? 'accepted' : order.status === 'cancelled' ? 'rejected' : order.status,
 		createdAt: order.created_at,
 	};

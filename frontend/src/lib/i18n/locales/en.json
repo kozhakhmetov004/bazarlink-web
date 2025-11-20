@@ -30,7 +30,8 @@
 		"roles": {
 			"owner": "Owner",
 			"manager": "Manager",
-			"sales_representative": "Sales Representative"
+			"sales_representative": "Sales Representative",
+			"consumer": "Consumer"
 		}
 	},
 	"nav": {
@@ -38,6 +39,7 @@
 		"links": "Link Requests",
 		"catalog": "Catalog",
 		"orders": "Orders",
+		"complaints": "Escalated Complaints",
 		"team": "Team",
 		"settings": "Settings",
 		"logout": "Logout"
@@ -229,6 +231,11 @@
 		"transferSupplierAcknowledgment": "I acknowledge that I am transferring supplier access to another owner",
 		"ownerEmail": "Owner Email",
 		"ownerEmailHint": "Enter the email address of the new owner",
+		"deliveryOptions": "Delivery Options",
+		"deliveryAvailable": "Delivery Available",
+		"pickupAvailable": "Pickup Available",
+		"leadTimeDays": "Lead Time (Days)",
+		"leadTimeDaysHint": "Default number of days until delivery/pickup",
 		"placeholders": {
 			"ownerEmail": "new.owner@example.com",
 			"companyName": "Fresh Foods Inc.",
@@ -252,6 +259,41 @@
 		"english": "English",
 		"russian": "Russian",
 		"kazakh": "Kazakh"
+	},
+	"complaints": {
+		"title": "Complaints",
+		"description": "View and manage escalated complaints from sales representatives",
+		"ownerDescription": "View all complaints for your supplier",
+		"noComplaints": "No escalated complaints",
+		"loadingComplaints": "Loading complaints...",
+		"failedToLoad": "Failed to load complaints",
+		"complaint": "Complaint",
+		"order": "Order",
+		"status": "Status",
+		"escalatedBy": "Escalated by",
+		"escalatedAt": "Escalated at",
+		"viewDetails": "View Details",
+		"open": "Open",
+		"inProgress": "In Progress",
+		"escalated": "Escalated",
+		"resolved": "Resolved",
+		"detailTitle": "Complaint Details",
+		"chat": "Chat",
+		"sendMessage": "Send Message",
+		"messagePlaceholder": "Type your message...",
+		"resolve": "Resolve",
+		"resolving": "Resolving...",
+		"resolveSuccess": "Complaint resolved successfully",
+		"resolveError": "Failed to resolve complaint",
+		"sendError": "Failed to send message",
+		"loadingMessages": "Loading messages...",
+		"noMessages": "No messages yet",
+		"titleLabel": "Title",
+		"descriptionLabel": "Description",
+		"createdAt": "Created at",
+		"you": "You",
+		"resolveConfirm": "Are you sure you want to resolve this complaint?",
+		"viewOnlyMode": "View only mode: You can view the complaint and chat history, but cannot send messages or resolve complaints."
 	}
 }
 

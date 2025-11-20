@@ -15,11 +15,9 @@ export interface ProductResponse {
 	unit: string;
 	stock_quantity: number | string; // Backend returns Decimal as string in JSON
 	min_order_quantity?: number | string;
+	lead_time_days?: number; // Product-specific lead time (optional, falls back to supplier)
 	is_available: boolean;
 	is_active: boolean;
-	delivery_available?: boolean;
-	pickup_available?: boolean;
-	lead_time_days?: number;
 	image_url?: string;
 	sku?: string;
 	created_at: string;
@@ -37,10 +35,8 @@ export interface ProductCreateRequest {
 	unit: string;
 	stock_quantity: number;
 	min_order_quantity?: number;
+	lead_time_days?: number; // Product-specific lead time (optional, falls back to supplier)
 	is_available?: boolean;
-	delivery_available?: boolean;
-	pickup_available?: boolean;
-	lead_time_days?: number;
 	image_url?: string;
 	sku?: string;
 }
@@ -55,9 +51,7 @@ export interface ProductUpdateRequest {
 	stock_quantity?: number;
 	is_available?: boolean;
 	is_active?: boolean;
-	delivery_available?: boolean;
-	pickup_available?: boolean;
-	lead_time_days?: number;
+	lead_time_days?: number; // Product-specific lead time (optional, falls back to supplier)
 	image_url?: string;
 	sku?: string;
 }

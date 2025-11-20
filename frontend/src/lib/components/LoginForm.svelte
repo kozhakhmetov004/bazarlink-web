@@ -27,24 +27,14 @@
 		error = '';
 		loading = true;
 
-		console.log('[LoginForm] Form submitted', {
-			isRegister,
-			email,
-			hasPassword: !!password
-		});
-
 		try {
 			let success = false;
 			
 			if (isRegister) {
-				console.log('[LoginForm] Calling register...');
 				success = await authStore.register(email, password, name, supplierName, phone);
 			} else {
-				console.log('[LoginForm] Calling login...');
 				success = await authStore.login(email, password);
 			}
-			
-			console.log('[LoginForm] Auth result:', { success });
 
 			if (!success) {
 				error = isRegister ? $_('auth.registrationFailed') : $_('auth.invalidCredentials');
@@ -54,14 +44,6 @@
 		} catch (err: any) {
 			// Get user-friendly error message
 			const errorMessage = err?.message || $_('auth.errorOccurred');
-			
-			// Only log unexpected errors (not authentication failures)
-			if (!errorMessage.includes('Incorrect') && 
-			    !errorMessage.includes('Invalid') && 
-			    !errorMessage.includes('already exists')) {
-				console.error('Unexpected login/register error:', err);
-			}
-			
 			error = errorMessage;
 		} finally {
 			loading = false;

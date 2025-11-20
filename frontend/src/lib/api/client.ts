@@ -21,18 +21,14 @@ class ApiClient {
 	}
 
 	setToken(token: string | null) {
-		console.log('apiClient.setToken() called:', token ? 'Token provided' : 'Token cleared');
 		this.token = token;
 		if (typeof window !== 'undefined') {
 			if (token) {
-				console.log('Storing token in localStorage');
 				localStorage.setItem('auth_token', token);
 			} else {
-				console.log('Removing token from localStorage');
 				localStorage.removeItem('auth_token');
 			}
 		}
-		console.log('Token state updated. Has token:', !!this.token);
 	}
 
 	private buildUrl(endpoint: string, params?: Record<string, string | number | boolean | null | undefined>): string {

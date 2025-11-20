@@ -141,7 +141,7 @@
 								</div>
 								<div class="text-right">
 									<p class="text-green-700">
-										${order.totalAmount.toFixed(2)}
+										{(typeof order.totalAmount === 'number' ? order.totalAmount : parseFloat(order.totalAmount || '0')).toFixed(2)}
 									</p>
 								</div>
 							</div>
@@ -151,7 +151,7 @@
 									{#each order.items as item}
 										<div class="flex justify-between text-sm">
 											<span class="text-gray-600">{item.productName} x {item.quantity}</span>
-											<span class="text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+											<span class="text-gray-900">${((typeof item.price === 'number' ? item.price : parseFloat(item.price || '0')) * (typeof item.quantity === 'number' ? item.quantity : parseFloat(item.quantity || '0'))).toFixed(2)}</span>
 										</div>
 									{/each}
 								</div>

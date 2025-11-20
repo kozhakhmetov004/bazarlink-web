@@ -13,7 +13,8 @@
 		ShoppingCart, 
 		Link as LinkIcon,
 		Settings,
-		LayoutDashboard
+		LayoutDashboard,
+		AlertTriangle
 	} from 'lucide-svelte';
 
 	const navigation = [
@@ -21,6 +22,7 @@
 		{ id: 'links', labelKey: 'nav.links', icon: LinkIcon, roles: ['owner', 'manager', 'sales_representative'], path: '/links' },
 		{ id: 'catalog', labelKey: 'nav.catalog', icon: Package, roles: ['owner', 'manager', 'sales_representative'], path: '/catalog' },
 		{ id: 'orders', labelKey: 'nav.orders', icon: ShoppingCart, roles: ['owner', 'manager', 'sales_representative'], path: '/orders' },
+		{ id: 'complaints', labelKey: 'nav.complaints', icon: AlertTriangle, roles: ['manager', 'owner'], path: '/complaints' },
 		{ id: 'team', labelKey: 'nav.team', icon: Users, roles: ['owner', 'manager'], path: '/team' },
 		{ id: 'settings', labelKey: 'nav.settings', icon: Settings, roles: ['owner'], path: '/settings' },
 	];
@@ -30,9 +32,7 @@
 	}
 
 	function handleLogout() {
-		console.log('Logout button clicked');
 		authStore.logout();
-		console.log('Redirecting to login page...');
 		goto('/login');
 	}
 </script>
@@ -111,17 +111,6 @@
 				{/each}
 			</nav>
 			
-			<!-- Sidebar Footer -->
-			<div class="absolute bottom-6 left-6 right-6">
-				<div class="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-					<p class="text-xs text-green-800 mb-1.5 flex items-center gap-1">
-						<span>💡</span> {$_( 'layout.proTip')}
-					</p>
-					<p class="text-xs text-green-700 leading-relaxed">
-						{$_('layout.proTipText')}
-					</p>
-				</div>
-			</div>
 		</aside>
 
 		<!-- Main Content -->

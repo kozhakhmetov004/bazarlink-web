@@ -61,7 +61,13 @@
 			const supplierId = $supplier?.id;
 			if (supplierId) {
 				const productsData = await productsApi.getProducts({ supplier_id: parseInt(supplierId) });
-				products = productsData.map(mapProduct);
+				// Pass supplier data to mapProduct for delivery info
+				const supplierData = $supplier ? {
+					delivery_available: ($supplier as any).delivery_available,
+					pickup_available: ($supplier as any).pickup_available,
+					lead_time_days: ($supplier as any).lead_time_days
+				} : undefined;
+				products = productsData.map(p => mapProduct(p, supplierData));
 			}
 		} catch (error) {
 			console.error('Failed to load products', error);

@@ -30,7 +30,8 @@
 		"roles": {
 			"owner": "Ие",
 			"manager": "Менеджер",
-			"sales_representative": "Сату өкілі"
+			"sales_representative": "Сату өкілі",
+			"consumer": "Тұтынушы"
 		}
 	},
 	"nav": {
@@ -38,6 +39,7 @@
 		"links": "Байланыс сұраулары",
 		"catalog": "Каталог",
 		"orders": "Тапсырыстар",
+		"complaints": "Эскалацияланған шағымдар",
 		"team": "Команда",
 		"settings": "Баптаулар",
 		"logout": "Шығу"
@@ -229,6 +231,11 @@
 		"transferSupplierAcknowledgment": "Мен жеткізушіге қол жеткізуді басқа иеге беруге келісемін",
 		"ownerEmail": "Ие электрондық поштасы",
 		"ownerEmailHint": "Жаңа иенің электрондық пошта мекенжайын енгізіңіз",
+		"deliveryOptions": "Жеткізу опциялары",
+		"deliveryAvailable": "Жеткізу қолжетімді",
+		"pickupAvailable": "Алу қолжетімді",
+		"leadTimeDays": "Орындау уақыты (күндер)",
+		"leadTimeDaysHint": "Жеткізу/алуға дейінгі күндердің әдепкі саны",
 		"placeholders": {
 			"ownerEmail": "new.owner@example.com",
 			"companyName": "Fresh Foods Inc.",
@@ -252,6 +259,41 @@
 		"english": "Ағылшын",
 		"russian": "Орыс",
 		"kazakh": "Қазақ"
+	},
+	"complaints": {
+		"title": "Шағымдар",
+		"description": "Сату өкілдерінен эскалацияланған шағымдарды көру және басқару",
+		"ownerDescription": "Жеткізушіңізге арналған барлық шағымдарды көру",
+		"noComplaints": "Эскалацияланған шағымдар жоқ",
+		"loadingComplaints": "Шағымдар жүктелуде...",
+		"failedToLoad": "Шағымдарды жүктеу сәтсіз аяқталды",
+		"complaint": "Шағым",
+		"order": "Тапсырыс",
+		"status": "Мәртебе",
+		"escalatedBy": "Эскалацияланған",
+		"escalatedAt": "Эскалацияланған уақыты",
+		"viewDetails": "Толық мәліметтер",
+		"open": "Ашық",
+		"inProgress": "Жүргізілуде",
+		"escalated": "Эскалацияланған",
+		"resolved": "Шешілген",
+		"detailTitle": "Шағым мәліметтері",
+		"chat": "Чат",
+		"sendMessage": "Хабарлама жіберу",
+		"messagePlaceholder": "Хабарламаңызды енгізіңіз...",
+		"resolve": "Шешу",
+		"resolving": "Шешуде...",
+		"resolveSuccess": "Шағым сәтті шешілді",
+		"resolveError": "Шағымды шешу сәтсіз аяқталды",
+		"sendError": "Хабарламаны жіберу сәтсіз аяқталды",
+		"loadingMessages": "Хабарламалар жүктелуде...",
+		"noMessages": "Әлі хабарламалар жоқ",
+		"titleLabel": "Тақырып",
+		"descriptionLabel": "Сипаттама",
+		"createdAt": "Жасалған",
+		"you": "Сіз",
+		"resolveConfirm": "Сіз бұл шағымды шешуді қалайсыз ба?",
+		"viewOnlyMode": "Тек қарау режимі: Сіз шағымды және чат тарихын көре аласыз, бірақ хабарлама жібере алмайсыз немесе шағымдарды шеше алмайсыз."
 	}
 }
 

@@ -44,9 +44,7 @@ export interface Product {
   supplierId: string;
   imageUrl?: string;
   sku?: string;
-  leadTime: string;
-  deliveryAvailable: boolean;
-  pickupAvailable: boolean;
+  leadTime: string; // Product-specific lead time or supplier default
 }
 
 export interface LinkRequest {
