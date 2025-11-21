@@ -129,7 +129,8 @@
 			"categoryName": "e.g., Fresh Vegetables",
 			"price": "0.00",
 			"stock": "0"
-		}
+		},
+		"searchPlaceholder": "Search products by name..."
 	},
 	"orders": {
 		"title": "Order Management",

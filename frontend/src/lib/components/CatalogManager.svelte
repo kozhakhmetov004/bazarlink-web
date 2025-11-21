@@ -14,7 +14,7 @@
 	import AddProductModal from '$lib/components/AddProductModal.svelte';
 	import EditCategoryModal from '$lib/components/EditCategoryModal.svelte';
 	import EditProductModal from '$lib/components/EditProductModal.svelte';
-	import { Plus, Package, Edit } from 'lucide-svelte';
+	import { Plus, Package, Edit, Search } from 'lucide-svelte';
 	import { _ } from 'svelte-i18n';
 	import type { ProductResponse } from '$lib/api/products';
 
@@ -23,6 +23,7 @@
 	let categories: CategoryResponse[] = [];
 	let products: Product[] = [];
 	let selectedCategoryId: number | null = null;
+	let searchTerm = '';
 	let loading = true;
 	let showAddCategoryModal = false;
 	let showAddProductModal = false;
@@ -31,9 +32,21 @@
 	let editingCategory: CategoryResponse | null = null;
 	let editingProduct: ProductResponse | null = null;
 
-	$: filteredProducts = selectedCategoryId 
-		? products.filter(p => p.categoryId === String(selectedCategoryId))
-		: products;
+	$: filteredProducts = (() => {
+		let filtered = selectedCategoryId 
+			? products.filter(p => p.categoryId === String(selectedCategoryId))
+			: products;
+		
+		// Filter by search term if provided
+		if (searchTerm.trim()) {
+			const term = searchTerm.trim().toLowerCase();
+			filtered = filtered.filter(p => 
+				p.name.toLowerCase().includes(term)
+			);
+		}
+		
+		return filtered;
+	})();
 
 	onMount(async () => {
 		await Promise.all([loadCategories(), loadProducts()]);
@@ -180,7 +193,7 @@
 		<!-- Products -->
 		<Card className="lg:col-span-2">
 			<CardHeader>
-				<div class="flex items-center justify-between">
+				<div class="flex items-center justify-between mb-4">
 					<CardTitle>{$_('catalog.products')} ({filteredProducts.length})</CardTitle>
 					{#if canManageProducts}
 						<Button 
@@ -194,6 +207,16 @@
 							{$_('catalog.addProduct')}
 						</Button>
 					{/if}
+				</div>
+				<!-- Search Input -->
+				<div class="relative">
+					<Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+					<input
+						type="text"
+						bind:value={searchTerm}
+						placeholder={$_('catalog.searchPlaceholder')}
+						class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+					/>
 				</div>
 			</CardHeader>
 			<CardContent>
