@@ -14,15 +14,17 @@
 		Link as LinkIcon,
 		Settings,
 		LayoutDashboard,
-		AlertTriangle
+		AlertTriangle,
+		AlertCircle
 	} from 'lucide-svelte';
 
 	const navigation = [
 		{ id: 'dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, roles: ['owner', 'manager', 'sales_representative'], path: '/dashboard' },
 		{ id: 'links', labelKey: 'nav.links', icon: LinkIcon, roles: ['owner', 'manager', 'sales_representative'], path: '/links' },
-		{ id: 'catalog', labelKey: 'nav.catalog', icon: Package, roles: ['owner', 'manager', 'sales_representative'], path: '/catalog' },
 		{ id: 'orders', labelKey: 'nav.orders', icon: ShoppingCart, roles: ['owner', 'manager', 'sales_representative'], path: '/orders' },
+		{ id: 'catalog', labelKey: 'nav.catalog', icon: Package, roles: ['owner', 'manager', 'sales_representative'], path: '/catalog' },
 		{ id: 'complaints', labelKey: 'nav.complaints', icon: AlertTriangle, roles: ['manager', 'owner'], path: '/complaints' },
+		{ id: 'incidents', labelKey: 'nav.incidents', icon: AlertCircle, roles: ['manager'], path: '/incidents' },
 		{ id: 'team', labelKey: 'nav.team', icon: Users, roles: ['owner', 'manager'], path: '/team' },
 		{ id: 'settings', labelKey: 'nav.settings', icon: Settings, roles: ['owner'], path: '/settings' },
 	];

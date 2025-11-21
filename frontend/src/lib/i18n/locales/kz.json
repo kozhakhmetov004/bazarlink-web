@@ -40,6 +40,7 @@
 		"catalog": "Каталог",
 		"orders": "Тапсырыстар",
 		"complaints": "Эскалацияланған шағымдар",
+		"incidents": "Оқиғалар",
 		"team": "Команда",
 		"settings": "Баптаулар",
 		"logout": "Шығу"
@@ -294,6 +295,40 @@
 		"you": "Сіз",
 		"resolveConfirm": "Сіз бұл шағымды шешуді қалайсыз ба?",
 		"viewOnlyMode": "Тек қарау режимі: Сіз шағымды және чат тарихын көре аласыз, бірақ хабарлама жібере алмайсыз немесе шағымдарды шеше алмайсыз."
+	},
+	"incidents": {
+		"title": "Оқиғалар",
+		"description": "Эскалацияланған мәселелер мен проблемаларды басқару",
+		"createIncident": "Оқиға жасау",
+		"incidentCreated": "Оқиға сәтті жасалды",
+		"statusUpdated": "Оқиға мәртебесі жаңартылды",
+		"assignmentUpdated": "Оқиға тағайындалуы жаңартылды",
+		"failedToCreate": "Оқиғаны жасау сәтсіз аяқталды",
+		"failedToUpdate": "Оқиғаны жаңарту сәтсіз аяқталды",
+		"failedToAssign": "Оқиғаны тағайындау сәтсіз аяқталды",
+		"failedToLoad": "Оқиғаларды жүктеу сәтсіз аяқталды",
+		"loadingIncidents": "Оқиғалар жүктелуде...",
+		"noIncidents": "Оқиғалар табылмады",
+		"open": "Ашық",
+		"inProgress": "Жүргізілуде",
+		"resolved": "Шешілген",
+		"unassigned": "Тағайындалмаған",
+		"viewDetails": "Толық мәліметтер",
+		"startProgress": "Жұмысты бастау",
+		"resolve": "Шешу",
+		"incidentDetails": "Оқиға мәліметтері",
+		"created": "Жасалған",
+		"assignedTo": "Тағайындалған",
+		"orderId": "Тапсырыс ID",
+		"resolved": "Шешілген",
+		"resolution": "Шешім",
+		"titleLabel": "Тақырып",
+		"descriptionLabel": "Сипаттама",
+		"orderIdOptional": "Тапсырыс ID (міндетті емес)",
+		"assignToOptional": "Тағайындау (міндетті емес)",
+		"orderIdPlaceholder": "Егер байланысты болса, тапсырыс ID",
+		"titlePlaceholder": "Оқиға тақырыбын енгізіңіз",
+		"descriptionPlaceholder": "Оқиғаны сипаттаңыз"
 	}
 }
 

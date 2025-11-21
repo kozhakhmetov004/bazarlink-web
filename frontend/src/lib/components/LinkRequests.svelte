@@ -37,12 +37,31 @@
 		try {
 			loading = true;
 			const links = await linksApi.getLinks();
-			requests = links.map(link => ({
-				...mapLink(link),
-				consumerId: link.consumer_id, // Store consumer_id directly
-				consumer: undefined,
-				loadingConsumer: false
-			}));
+			
+			// Fetch consumer info for all links in parallel
+			const consumerPromises = links.map(link => 
+				consumersApi.getConsumer(link.consumer_id)
+					.catch(error => {
+						console.error(`Failed to load consumer ${link.consumer_id}`, error);
+						return null;
+					})
+			);
+			
+			const consumers = await Promise.all(consumerPromises);
+			
+			requests = links.map((link, index) => {
+				const consumer = consumers[index];
+				return {
+					...mapLink(
+						link,
+						consumer?.business_name,
+						consumer?.email
+					),
+					consumerId: link.consumer_id, // Store consumer_id directly
+					consumer: consumer || undefined,
+					loadingConsumer: false
+				};
+			});
 		} catch (error) {
 			console.error('Failed to load links', error);
 			errorMessage = 'Failed to load link requests';
@@ -284,9 +303,67 @@
 									<Eye class="w-3 h-3 mr-1" />
 									{$_('links.view')}
 								</Button>
+								{#if request.status === 'approved'}
+									<Button
+										variant="outline"
+										size="sm"
+										on:click={() => handleReject(request.id)}
+										className="h-8 px-3"
+									>
+										<X class="w-3 h-3 mr-1" />
+										{$_('links.reject')}
+									</Button>
+									<Button
+										variant="default"
+										size="sm"
+										on:click={() => handleApprove(request.id)}
+										className="h-8 px-3 bg-green-600 hover:bg-green-700"
+									>
+										<Check class="w-3 h-3 mr-1" />
+										{$_('links.approve')}
+									</Button>
+								{:else if request.status === 'rejected'}
+									<Button
+										variant="default"
+										size="sm"
+										on:click={() => handleApprove(request.id)}
+										className="h-8 px-3 bg-green-600 hover:bg-green-700"
+									>
+										<Check class="w-3 h-3 mr-1" />
+										{$_('links.approve')}
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										on:click={() => handleReject(request.id)}
+										className="h-8 px-3"
+									>
+										<X class="w-3 h-3 mr-1" />
+										{$_('links.reject')}
+									</Button>
+								{:else if request.status === 'blocked'}
+									<Button
+										variant="default"
+										size="sm"
+										on:click={() => handleApprove(request.id)}
+										className="h-8 px-3 bg-green-600 hover:bg-green-700"
+									>
+										<Check class="w-3 h-3 mr-1" />
+										{$_('links.approve')}
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										on:click={() => handleReject(request.id)}
+										className="h-8 px-3"
+									>
+										<X class="w-3 h-3 mr-1" />
+										{$_('links.reject')}
+									</Button>
+								{/if}
 								<Badge variant="outline" className={statusConfig.color}>
 									<StatusIcon class="w-3 h-3 mr-1" />
-									{statusConfig.label}
+									{$_(statusConfig.labelKey)}
 								</Badge>
 							</div>
 						</div>

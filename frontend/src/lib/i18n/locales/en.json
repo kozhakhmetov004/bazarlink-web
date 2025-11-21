@@ -40,6 +40,7 @@
 		"catalog": "Catalog",
 		"orders": "Orders",
 		"complaints": "Escalated Complaints",
+		"incidents": "Incidents",
 		"team": "Team",
 		"settings": "Settings",
 		"logout": "Logout"
@@ -294,6 +295,40 @@
 		"you": "You",
 		"resolveConfirm": "Are you sure you want to resolve this complaint?",
 		"viewOnlyMode": "View only mode: You can view the complaint and chat history, but cannot send messages or resolve complaints."
+	},
+	"incidents": {
+		"title": "Incidents",
+		"description": "Manage escalated problems and issues",
+		"createIncident": "Create Incident",
+		"incidentCreated": "Incident created successfully",
+		"statusUpdated": "Incident status updated",
+		"assignmentUpdated": "Incident assignment updated",
+		"failedToCreate": "Failed to create incident",
+		"failedToUpdate": "Failed to update incident",
+		"failedToAssign": "Failed to assign incident",
+		"failedToLoad": "Failed to load incidents",
+		"loadingIncidents": "Loading incidents...",
+		"noIncidents": "No incidents found",
+		"open": "Open",
+		"inProgress": "In Progress",
+		"resolved": "Resolved",
+		"unassigned": "Unassigned",
+		"viewDetails": "View Details",
+		"startProgress": "Start Progress",
+		"resolve": "Resolve",
+		"incidentDetails": "Incident Details",
+		"created": "Created",
+		"assignedTo": "Assigned To",
+		"orderId": "Order ID",
+		"resolved": "Resolved",
+		"resolution": "Resolution",
+		"titleLabel": "Title",
+		"descriptionLabel": "Description",
+		"orderIdOptional": "Order ID (Optional)",
+		"assignToOptional": "Assign To (Optional)",
+		"orderIdPlaceholder": "Order ID if related",
+		"titlePlaceholder": "Enter incident title",
+		"descriptionPlaceholder": "Describe the incident"
 	}
 }
 

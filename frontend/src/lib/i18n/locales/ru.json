@@ -40,6 +40,7 @@
 		"catalog": "Каталог",
 		"orders": "Заказы",
 		"complaints": "Эскалированные жалобы",
+		"incidents": "Инциденты",
 		"team": "Команда",
 		"settings": "Настройки",
 		"logout": "Выйти"
@@ -294,6 +295,40 @@
 		"you": "Вы",
 		"resolveConfirm": "Вы уверены, что хотите решить эту жалобу?",
 		"viewOnlyMode": "Режим просмотра: Вы можете просматривать жалобу и историю чата, но не можете отправлять сообщения или решать жалобы."
+	},
+	"incidents": {
+		"title": "Инциденты",
+		"description": "Управление эскалированными проблемами и вопросами",
+		"createIncident": "Создать инцидент",
+		"incidentCreated": "Инцидент успешно создан",
+		"statusUpdated": "Статус инцидента обновлен",
+		"assignmentUpdated": "Назначение инцидента обновлено",
+		"failedToCreate": "Не удалось создать инцидент",
+		"failedToUpdate": "Не удалось обновить инцидент",
+		"failedToAssign": "Не удалось назначить инцидент",
+		"failedToLoad": "Не удалось загрузить инциденты",
+		"loadingIncidents": "Загрузка инцидентов...",
+		"noIncidents": "Инциденты не найдены",
+		"open": "Открыто",
+		"inProgress": "В процессе",
+		"resolved": "Решено",
+		"unassigned": "Не назначено",
+		"viewDetails": "Просмотр деталей",
+		"startProgress": "Начать работу",
+		"resolve": "Решить",
+		"incidentDetails": "Детали инцидента",
+		"created": "Создано",
+		"assignedTo": "Назначено",
+		"orderId": "ID заказа",
+		"resolved": "Решено",
+		"resolution": "Решение",
+		"titleLabel": "Заголовок",
+		"descriptionLabel": "Описание",
+		"orderIdOptional": "ID заказа (необязательно)",
+		"assignToOptional": "Назначить (необязательно)",
+		"orderIdPlaceholder": "ID заказа, если связан",
+		"titlePlaceholder": "Введите заголовок инцидента",
+		"descriptionPlaceholder": "Опишите инцидент"
 	}
 }
 
