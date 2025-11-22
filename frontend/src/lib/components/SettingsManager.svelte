@@ -12,7 +12,7 @@
 	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
 	import AddTeamMemberModal from '$lib/components/AddTeamMemberModal.svelte';
 	import { _ } from 'svelte-i18n';
-	import { Settings, Users, Plus, Building2, CheckCircle2, PlusCircle, Edit, User } from 'lucide-svelte';
+	import { Settings, Users, Plus, Building2, CheckCircle2, PlusCircle, Edit, User, ArrowRightLeft, AlertTriangle } from 'lucide-svelte';
 	import { usersApi } from '$lib/api/users';
 	import { suppliersApi } from '$lib/api/suppliers';
 	import { mapSupplier, mapUser } from '$lib/utils/mappers';
@@ -28,8 +28,6 @@
 	// User form fields (for owner's own account)
 	let userFullName = '';
 	let userPhone = '';
-	let userEmail = '';
-	let acknowledgeTransfer = false;
 	let userLoading = false;
 	let userError = '';
 	let userSuccess = '';
@@ -51,6 +49,18 @@
 	let loading = false;
 	let error = '';
 	let success = '';
+
+	// Transfer ownership form fields
+	let transferEmail = '';
+	let transferFullName = '';
+	let transferPassword = '';
+	let transferPhone = '';
+	let transferLoading = false;
+	let transferError = '';
+	let transferSuccess = '';
+	let existingManagers: UserResponse[] = [];
+	let selectedManagerId: number = 0;
+	let createNewManager = true;
 
 	// Function to load supplier data from API into form fields
 	async function loadSupplierFormData() {
@@ -126,11 +136,6 @@
 	$: hasSupplier = !!$supplier;
 	$: isOwner = $user?.role === 'owner';
 	
-	// Reset email to current user email when checkbox is unchecked
-	$: if (!acknowledgeTransfer && $user) {
-		userEmail = $user.email || '';
-	}
-	
 	// Load user data from API into form fields
 	async function loadUserData() {
 		if (!$user || !isOwner) return;
@@ -139,13 +144,11 @@
 			const userResponse = await usersApi.getUser($user.id);
 			userFullName = userResponse.full_name || '';
 			userPhone = userResponse.phone || '';
-			userEmail = userResponse.email || '';
 		} catch (err) {
 			console.error('Failed to load user data:', err);
 			// Fallback to store data
 			userFullName = $user.name || '';
 			userPhone = '';
-			userEmail = $user.email || '';
 		}
 	}
 	
@@ -266,14 +269,23 @@
 	}
 
 	async function loadTeamMembers() {
-		if ($user?.role !== 'owner') return;
+		if ($user?.role !== 'owner' || !$user?.supplierId) return;
 		
 		loadingMembers = true;
 		try {
 			const users = await usersApi.getUsers();
-			// Filter to only show managers and sales reps (team members)
+			const ownerSupplierId = parseInt($user.supplierId);
+			
+			// Filter to only show managers and sales reps from the same supplier
 			teamMembers = users.filter(u => 
-				u.role === 'manager' || u.role === 'sales_representative'
+				(u.role === 'manager' || u.role === 'sales_representative') &&
+				u.supplier_id === ownerSupplierId
+			);
+			
+			// Load existing managers for transfer ownership - only from this supplier
+			existingManagers = users.filter(u => 
+				u.role === 'manager' && 
+				u.supplier_id === ownerSupplierId
 			);
 		} catch (error) {
 			console.error('Failed to load team members:', error);
@@ -286,17 +298,86 @@
 		loadTeamMembers();
 	}
 
+	async function handleTransferOwnership() {
+		if (!$user || !isOwner) return;
+		
+		transferError = '';
+		transferSuccess = '';
+		
+		// Validate form
+		if (createNewManager) {
+			if (!transferEmail.trim()) {
+				transferError = 'Email is required';
+				return;
+			}
+			if (!transferFullName.trim()) {
+				transferError = 'Full name is required';
+				return;
+			}
+			if (!transferPassword.trim() || transferPassword.length < 6) {
+				transferError = 'Password is required and must be at least 6 characters';
+				return;
+			}
+		} else {
+			if (!selectedManagerId || selectedManagerId === 0) {
+				transferError = 'Please select a manager';
+				return;
+			}
+		}
+
+		transferLoading = true;
+
+		try {
+			let managerId: number;
+
+			if (createNewManager) {
+				// First, create a new manager with the given email
+				const newManager = await usersApi.createUser({
+					email: transferEmail.trim(),
+					full_name: transferFullName.trim(),
+					password: transferPassword,
+					phone: transferPhone.trim() || undefined,
+					role: 'manager',
+					language: ($user?.language as string) || 'en'
+				});
+				
+				managerId = newManager.id;
+				transferSuccess = 'Manager created successfully. ';
+			} else {
+				// Use existing manager
+				managerId = selectedManagerId;
+			}
+
+			// Transfer ownership to the manager
+			// The backend will automatically:
+			// 1. Make the manager the new owner
+			// 2. Set current owner's supplier_id to None
+			// 3. Delete the current owner's account
+			await usersApi.transferOwnership({
+				new_owner_user_id: managerId
+			});
+
+			transferSuccess = 'Ownership transferred successfully. Your account has been deleted by the backend. ';
+
+			// Clear auth state and logout since the account was deleted by backend
+			// The token is now invalid, so we need to logout
+			authStore.logout();
+			
+			transferSuccess += 'You have been logged out. The new owner can now log in with their account.';
+
+		} catch (err: any) {
+			transferError = err?.message || 'Failed to transfer ownership';
+			console.error('Transfer ownership error:', err);
+		} finally {
+			transferLoading = false;
+		}
+	}
+
 	async function handleUpdateUser() {
 		if (!$user || !isOwner) return;
 		
 		if (!userFullName.trim()) {
 			userError = $_('settings.fullName') + ' ' + $_('common.required').toLowerCase();
-			return;
-		}
-		
-		// Validate email if acknowledgment is checked
-		if (acknowledgeTransfer && !userEmail.trim()) {
-			userError = $_('settings.ownerEmail') + ' ' + $_('common.required').toLowerCase();
 			return;
 		}
 		
@@ -311,11 +392,6 @@
 				phone: userPhone.trim() || undefined,
 			};
 			
-			// Include email if acknowledgment checkbox is checked
-			if (acknowledgeTransfer && userEmail.trim()) {
-				updateData.email = userEmail.trim();
-			}
-			
 			await usersApi.updateUser(userId, updateData);
 
 			// Refresh auth store to get updated user data
@@ -323,9 +399,6 @@
 			
 			// Reload user data to get latest from API
 			await loadUserData();
-			
-			// Reset acknowledgment checkbox after successful update
-			acknowledgeTransfer = false;
 
 			userSuccess = $_('settings.userUpdateSuccess');
 		} catch (err: any) {
@@ -401,54 +474,6 @@
 							className="h-10"
 							required
 						/>
-					</div>
-
-					<div class="space-y-2">
-						<Label htmlFor="userEmail" className="text-gray-700">
-							{acknowledgeTransfer ? $_('settings.ownerEmail') : $_('settings.emailReadOnly')}
-							{#if acknowledgeTransfer}
-								<span class="text-red-500">*</span>
-							{/if}
-						</Label>
-						{#if acknowledgeTransfer}
-							<Input 
-								id="userEmail" 
-								type="email"
-								bind:value={userEmail}
-								placeholder={$_('settings.placeholders.ownerEmail')}
-								className="h-10"
-								required
-							/>
-						{:else}
-							<Input 
-								id="userEmail" 
-								type="email"
-								value={$user?.email || ''}
-								className="h-10 bg-gray-100"
-								disabled
-								readonly
-							/>
-						{/if}
-					</div>
-
-					<!-- Owner Transfer Acknowledgment -->
-					<div class="space-y-3 pt-2 border-t border-gray-200">
-						<div class="flex items-start gap-3">
-							<input
-								type="checkbox"
-								id="acknowledgeTransfer"
-								bind:checked={acknowledgeTransfer}
-								class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-							/>
-							<Label htmlFor="acknowledgeTransfer" className="text-gray-700 cursor-pointer">
-								{$_('settings.transferSupplierAcknowledgment')}
-							</Label>
-						</div>
-						{#if acknowledgeTransfer}
-							<p class="text-xs text-gray-500 pl-7">
-								{$_('settings.ownerEmailHint')}
-							</p>
-						{/if}
 					</div>
 
 					<div class="space-y-2">
@@ -845,5 +870,199 @@
 				</CardContent>
 			</Card>
 		{/if}
+
+		<!-- Transfer Ownership Section -->
+		<Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white shadow-md">
+			<CardHeader className="pb-4">
+				<div class="flex items-center gap-3">
+					<div class="p-2 rounded-lg bg-orange-100">
+						<ArrowRightLeft class="w-6 h-6 text-orange-600" />
+					</div>
+					<div>
+						<CardTitle className="flex items-center gap-2 text-orange-900">
+							Transfer Ownership
+						</CardTitle>
+						<CardDescription className="mt-1 text-orange-700">
+							Transfer ownership of your supplier to another manager. You can create a new manager or select an existing one.
+						</CardDescription>
+					</div>
+				</div>
+			</CardHeader>
+			<CardContent className="pt-2">
+				<div class="space-y-4">
+					<!-- Warning Alert -->
+					<Alert className="bg-orange-50 border-orange-200">
+						<AlertTriangle class="w-4 h-4 text-orange-600 mr-2" />
+						<AlertDescription className="text-orange-800">
+							<strong>Warning:</strong> After transferring ownership, your account will be automatically deleted by the backend. 
+							The selected manager will become the new owner of your supplier. This action cannot be undone.
+						</AlertDescription>
+					</Alert>
+
+					<!-- Toggle between creating new manager or selecting existing -->
+					<div class="space-y-3 pt-2 border-t border-gray-200">
+						<div class="flex items-center gap-4">
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input
+									type="radio"
+									name="transferMode"
+									bind:group={createNewManager}
+									value={true}
+									class="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
+								/>
+								<span class="text-gray-700">Create New Manager</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input
+									type="radio"
+									name="transferMode"
+									bind:group={createNewManager}
+									value={false}
+									class="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
+								/>
+								<span class="text-gray-700">Select Existing Manager</span>
+							</label>
+						</div>
+					</div>
+
+					{#if createNewManager}
+						<!-- Create New Manager Form -->
+						<form on:submit|preventDefault={handleTransferOwnership} class="space-y-4">
+							<div class="space-y-2">
+								<Label htmlFor="transferEmail" className="text-gray-700">
+									Email Address <span class="text-red-500">*</span>
+								</Label>
+								<Input 
+									id="transferEmail" 
+									type="email"
+									bind:value={transferEmail}
+									placeholder="newowner@example.com"
+									className="h-10"
+									required
+								/>
+							</div>
+
+							<div class="space-y-2">
+								<Label htmlFor="transferFullName" className="text-gray-700">
+									Full Name <span class="text-red-500">*</span>
+								</Label>
+								<Input 
+									id="transferFullName" 
+									bind:value={transferFullName}
+									placeholder="John Doe"
+									className="h-10"
+									required
+								/>
+							</div>
+
+							<div class="space-y-2">
+								<Label htmlFor="transferPassword" className="text-gray-700">
+									Password <span class="text-red-500">*</span>
+								</Label>
+								<Input 
+									id="transferPassword" 
+									type="password"
+									bind:value={transferPassword}
+									placeholder="Minimum 6 characters"
+									className="h-10"
+									required
+									minlength="6"
+								/>
+							</div>
+
+							<div class="space-y-2">
+								<Label htmlFor="transferPhone" className="text-gray-700">Phone Number (Optional)</Label>
+								<Input 
+									id="transferPhone" 
+									bind:value={transferPhone}
+									placeholder="+1 (555) 123-4567"
+									className="h-10"
+								/>
+							</div>
+
+							{#if transferError}
+								<Alert variant="destructive">
+									<AlertDescription>{transferError}</AlertDescription>
+								</Alert>
+							{/if}
+
+							{#if transferSuccess}
+								<Alert className="bg-green-50 border-green-200">
+									<AlertDescription className="text-green-800">{transferSuccess}</AlertDescription>
+								</Alert>
+							{/if}
+
+							<Button 
+								type="submit" 
+								className="bg-orange-600 hover:bg-orange-700 w-full shadow-md"
+								disabled={transferLoading}
+							>
+								{#if transferLoading}
+									<ArrowRightLeft class="w-4 h-4 mr-2" />
+									Transferring Ownership...
+								{:else}
+									<ArrowRightLeft class="w-4 h-4 mr-2" />
+									Create Manager and Transfer Ownership
+								{/if}
+							</Button>
+						</form>
+					{:else}
+						<!-- Select Existing Manager Form -->
+						<form on:submit|preventDefault={handleTransferOwnership} class="space-y-4">
+							{#if existingManagers.length === 0}
+								<Alert className="bg-yellow-50 border-yellow-200">
+									<AlertDescription className="text-yellow-800">
+										No existing managers found. Please create a manager first using the "Create New Manager" option.
+									</AlertDescription>
+								</Alert>
+							{:else}
+								<div class="space-y-2">
+									<Label htmlFor="selectedManager" className="text-gray-700">
+										Select Manager <span class="text-red-500">*</span>
+									</Label>
+									<select
+										id="selectedManager"
+										bind:value={selectedManagerId}
+										class="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+										required
+									>
+										<option value={0}>Select a manager...</option>
+										{#each existingManagers as manager}
+											<option value={manager.id}>{manager.full_name} ({manager.email})</option>
+										{/each}
+									</select>
+								</div>
+							{/if}
+
+							{#if transferError}
+								<Alert variant="destructive">
+									<AlertDescription>{transferError}</AlertDescription>
+								</Alert>
+							{/if}
+
+							{#if transferSuccess}
+								<Alert className="bg-green-50 border-green-200">
+									<AlertDescription className="text-green-800">{transferSuccess}</AlertDescription>
+								</Alert>
+							{/if}
+
+							<Button 
+								type="submit" 
+								className="bg-orange-600 hover:bg-orange-700 w-full shadow-md"
+								disabled={transferLoading || existingManagers.length === 0}
+							>
+								{#if transferLoading}
+									<ArrowRightLeft class="w-4 h-4 mr-2" />
+									Transferring Ownership...
+								{:else}
+									<ArrowRightLeft class="w-4 h-4 mr-2" />
+									Transfer Ownership
+								{/if}
+							</Button>
+						</form>
+					{/if}
+				</div>
+			</CardContent>
+		</Card>
 	{/if}
 </div>

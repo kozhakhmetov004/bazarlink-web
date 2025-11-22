@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { ordersApi, productsApi } from '$lib/api';
 	import { mapOrder } from '$lib/utils/mappers';
 	import { supplier } from '$lib/stores/auth';
@@ -11,7 +12,11 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import { _ } from 'svelte-i18n';
-	import { Check, X, Clock, Package } from 'lucide-svelte';
+	import { Check, X, Clock, Package, ExternalLink } from 'lucide-svelte';
+
+	function handleOrderClick(orderId: string) {
+		goto(`/orders/${orderId}`);
+	}
 
 	let orders: Order[] = [];
 	let loading = true;
@@ -126,9 +131,15 @@
 					{#each pendingOrders as order}
 						{@const statusConfig = getStatusBadge(order.status)}
 						{@const StatusIcon = statusConfig.icon}
-						<div class="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
+						<div 
+							class="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors cursor-pointer"
+							on:click={() => handleOrderClick(order.id)}
+							role="button"
+							tabindex="0"
+							on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOrderClick(order.id); } }}
+						>
 							<div class="flex items-start justify-between mb-4">
-								<div>
+								<div class="flex-1">
 									<div class="flex items-center gap-3 mb-2">
 										<h4 class="text-gray-900">{$_('orders.order')} #{order.id}</h4>
 										<Badge variant={order.status === 'accepted' || order.status === 'completed' ? 'default' : 'secondary'} className={order.status === 'accepted' || order.status === 'completed' ? 'bg-green-600' : ''}>
@@ -140,9 +151,10 @@
 									<p class="text-xs text-gray-500">{$_('orders.placed')} {formatDate(order.createdAt)}</p>
 								</div>
 								<div class="text-right">
-									<p class="text-green-700">
-										{(typeof order.totalAmount === 'number' ? order.totalAmount : parseFloat(order.totalAmount || '0')).toFixed(2)}
+									<p class="text-green-700 font-semibold">
+										{(typeof order.totalAmount === 'number' ? order.totalAmount : parseFloat(order.totalAmount || '0')).toFixed(2)} KZT
 									</p>
+									<ExternalLink class="w-4 h-4 text-gray-400 mt-1" />
 								</div>
 							</div>
 							<div class="border-t border-gray-100 pt-4 mt-4">
@@ -156,10 +168,10 @@
 									{/each}
 								</div>
 							</div>
-							<div class="flex gap-2 mt-4">
+							<div class="flex gap-2 mt-4" on:click|stopPropagation={() => {}}>
 								<Button
 									variant="default"
-									on:click={() => handleAccept(order.id)}
+									on:click={(e) => { e.stopPropagation(); handleAccept(order.id); }}
 									className="flex-1 bg-green-600 hover:bg-green-700"
 								>
 									<Check class="w-4 h-4 mr-2" />
@@ -167,7 +179,7 @@
 								</Button>
 								<Button
 									variant="destructive"
-									on:click={() => handleReject(order.id)}
+									on:click={(e) => { e.stopPropagation(); handleReject(order.id); }}
 									className="flex-1"
 								>
 									<X class="w-4 h-4 mr-2" />
@@ -193,20 +205,32 @@
 			<CardContent>
 				<div class="space-y-4">
 					{#each activeOrders as order}
-						<div class="border border-gray-200 rounded-lg p-4">
+						<div 
+							class="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors cursor-pointer"
+							on:click={() => handleOrderClick(order.id)}
+							role="button"
+							tabindex="0"
+							on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOrderClick(order.id); } }}
+						>
 							<div class="flex items-start justify-between mb-4">
-								<div>
-									<h4 class="text-gray-900 mb-1">Order #{order.id}</h4>
-									<p class="text-sm text-gray-600">Customer: {order.consumerName}</p>
+								<div class="flex-1">
+									<h4 class="text-gray-900 mb-1">{$_('orders.order')} #{order.id}</h4>
+									<p class="text-sm text-gray-600">{$_('orders.customer')}: {order.consumerName}</p>
+									<p class="text-xs text-gray-500 mt-1">{$_('orders.placed')} {formatDate(order.createdAt)}</p>
 								</div>
-								<Button
-									variant="default"
-									on:click={() => handleComplete(order.id)}
-									className="bg-green-600 hover:bg-green-700"
-								>
-									<Check class="w-4 h-4 mr-2" />
-									{$_('orders.markComplete')}
-								</Button>
+								<div class="flex items-center gap-2">
+									<p class="text-green-700 font-semibold mr-2">
+										{(typeof order.totalAmount === 'number' ? order.totalAmount : parseFloat(order.totalAmount || '0')).toFixed(2)} KZT
+									</p>
+									<Button
+										variant="default"
+										on:click={(e) => { e.stopPropagation(); handleComplete(order.id); }}
+										className="bg-green-600 hover:bg-green-700"
+									>
+										<Check class="w-4 h-4 mr-2" />
+										{$_('orders.markComplete')}
+									</Button>
+								</div>
 							</div>
 						</div>
 					{/each}

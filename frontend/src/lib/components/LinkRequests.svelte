@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { linksApi, consumersApi } from '$lib/api';
+	import { supplier } from '$lib/stores/auth';
 	import { mapLink } from '$lib/utils/mappers';
 	import type { LinkRequest } from '$lib/types';
 	import type { ConsumerResponse } from '$lib/api/consumers';
@@ -33,10 +34,21 @@
 		await loadLinks();
 	});
 
+	// Reload links when supplier changes
+	$: if ($supplier?.id) {
+		loadLinks();
+	}
+
 	async function loadLinks() {
+		if (!$supplier?.id) {
+			loading = false;
+			return;
+		}
+
 		try {
 			loading = true;
-			const links = await linksApi.getLinks();
+			const supplierId = parseInt($supplier.id);
+			const links = await linksApi.getLinks({ supplier_id: supplierId });
 			
 			// Fetch consumer info for all links in parallel
 			const consumerPromises = links.map(link => 

@@ -34,6 +34,10 @@ export interface UserUpdateRequest {
 	is_active?: boolean;
 }
 
+export interface OwnershipTransferRequest {
+	new_owner_user_id: number;
+}
+
 export const usersApi = {
 	async getUsers(params?: {
 		skip?: number;
@@ -56,6 +60,14 @@ export const usersApi = {
 
 	async deleteUser(id: number): Promise<void> {
 		return apiClient.delete<void>(`/users/${id}`);
+	},
+
+	async deleteSelf(): Promise<void> {
+		return apiClient.delete<void>('/users/me');
+	},
+
+	async transferOwnership(data: OwnershipTransferRequest): Promise<UserResponse> {
+		return apiClient.post<UserResponse>('/users/transfer-ownership', data);
 	},
 };
 

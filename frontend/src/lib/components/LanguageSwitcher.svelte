@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { currentLocale } from '$lib/stores/i18n';
+	import { locale } from 'svelte-i18n';
 	import { _ } from 'svelte-i18n';
 	import { Globe } from 'lucide-svelte';
+	import { get } from 'svelte/store';
 
 	const languages = [
 		{ code: 'en', name: 'English', native: 'English' },
@@ -11,8 +13,10 @@
 
 	let showDropdown = false;
 
-	function setLocale(locale: string) {
-		currentLocale.set(locale);
+	function setLocale(loc: string) {
+		// Update both stores to keep them in sync
+		currentLocale.set(loc);
+		locale.set(loc);
 		showDropdown = false;
 	}
 

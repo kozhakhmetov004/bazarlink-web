@@ -54,15 +54,16 @@
 		style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; margin: 0; padding: 0;"
 		on:click={handleBackdropClick}
 		on:keydown={handleBackdropKeydown}
-		tabindex="0"
-		role="button"
-		aria-label="Close dialog"
+		tabindex="-1"
+		role="presentation"
 	>
 		<div
 			class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="dialog-title"
+			on:click|stopPropagation
+			on:keydown|stopPropagation
 		>
 			<div class="p-6">
 				{#if title}

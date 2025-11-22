@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user } from '$lib/stores/auth';
+	import { user, supplier } from '$lib/stores/auth';
 	import Card from '$lib/components/ui/Card.svelte';
 	import CardContent from '$lib/components/ui/CardContent.svelte';
 	import CardHeader from '$lib/components/ui/CardHeader.svelte';
@@ -27,17 +27,36 @@
 		loadingMembers = true;
 		try {
 			const users = await usersApi.getUsers();
-			// Filter based on current user role:
-			// - Owner can see Managers and Sales Reps
-			// - Manager can only see Sales Reps
+			
+			// Get the current user's supplier_id (prefer supplier.id, fallback to user.supplierId)
+			let currentSupplierId: number | null = null;
+			if ($supplier?.id) {
+				currentSupplierId = parseInt($supplier.id);
+			} else if ($user.supplierId) {
+				currentSupplierId = parseInt($user.supplierId);
+			}
+			
+			// If no supplier_id found, return empty array
+			if (!currentSupplierId) {
+				teamMembers = [];
+				return;
+			}
+			
+			// Filter based on current user role AND supplier_id:
+			// - Owner can see Managers and Sales Reps from same supplier
+			// - Manager can only see Sales Reps from same supplier
 			if ($user?.role === 'owner') {
-				teamMembers = users.filter(u => 
-					u.role === 'manager' || u.role === 'sales_representative'
-				);
+				teamMembers = users.filter(u => {
+					const isTeamMember = u.role === 'manager' || u.role === 'sales_representative';
+					const isSameSupplier = u.supplier_id === currentSupplierId;
+					return isTeamMember && isSameSupplier;
+				});
 			} else if ($user?.role === 'manager') {
-				teamMembers = users.filter(u => 
-					u.role === 'sales_representative'
-				);
+				teamMembers = users.filter(u => {
+					const isSalesRep = u.role === 'sales_representative';
+					const isSameSupplier = u.supplier_id === currentSupplierId;
+					return isSalesRep && isSameSupplier;
+				});
 			}
 		} catch (error) {
 			console.error('Failed to load team members:', error);

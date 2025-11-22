@@ -7,16 +7,18 @@
 	import Layout from '$lib/components/Layout.svelte';
 	import LoginLayout from '$lib/components/LoginLayout.svelte';
 	import '$lib/i18n';
-	import { currentLocale } from '$lib/stores/i18n';
+	import { currentLocale, locale } from '$lib/stores/i18n';
+	import { get } from 'svelte/store';
 
 	let mounted = false;
 	
 	onMount(() => {
 		mounted = true;
-		// Initialize locale from store
-		currentLocale.subscribe((loc) => {
-			// Locale is already set in the store
-		});
+		// Ensure locale is synced between store and svelte-i18n
+		const savedLocale = get(currentLocale);
+		if (savedLocale) {
+			locale.set(savedLocale);
+		}
 	});
 
 	$: isAuthenticated = $user !== null;
