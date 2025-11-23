@@ -168,10 +168,10 @@ frontend/
 │   │   │       └── kz.json
 │   │   │
 │   │   ├── utils/                   # Utility functions
-│   │   │   ├── mappers.ts           # Data transformation utilities
-│   │   │   └── utils.ts             # General utilities
-│   │   │
-│   │   └── mockData.ts              # Mock data (development)
+│   │       ├── mappers.ts           # Data transformation utilities
+│   │       └── utils.ts             # General utilities
+│   │   
+│   │   
 │   │
 │   ├── routes/                      # SvelteKit file-based routing
 │   │   ├── +layout.svelte           # Root layout with auth guard
@@ -214,9 +214,8 @@ frontend/
 ├── vite.config.ts                   # Vite configuration
 ├── tailwind.config.js               # Tailwind CSS configuration
 ├── postcss.config.js                # PostCSS configuration
-├── README.md                        # This file
-├── API_INTEGRATION.md               # API integration guide
-└── TROUBLESHOOTING.md               # Troubleshooting guide
+└── README.md                        # This file
+
 ```
 
 ## Key Architectural Patterns
