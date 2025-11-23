@@ -14,9 +14,12 @@
 	import AddProductModal from '$lib/components/AddProductModal.svelte';
 	import EditCategoryModal from '$lib/components/EditCategoryModal.svelte';
 	import EditProductModal from '$lib/components/EditProductModal.svelte';
-	import { Plus, Package, Edit, Search } from 'lucide-svelte';
+	import { Plus, Package, Edit, Search, Trash2 } from 'lucide-svelte';
 	import { _ } from 'svelte-i18n';
 	import type { ProductResponse } from '$lib/api/products';
+	import Dialog from '$lib/components/ui/Dialog.svelte';
+	import Alert from '$lib/components/ui/Alert.svelte';
+	import AlertDescription from '$lib/components/ui/AlertDescription.svelte';
 
 	$: canManageProducts = $user?.role === 'owner' || $user?.role === 'manager';
 
@@ -31,6 +34,11 @@
 	let showEditProductModal = false;
 	let editingCategory: CategoryResponse | null = null;
 	let editingProduct: ProductResponse | null = null;
+	let showDeleteCategoryDialog = false;
+	let showDeleteProductDialog = false;
+	let deletingCategory: CategoryResponse | null = null;
+	let deletingProduct: Product | null = null;
+	let deleteError = '';
 
 	$: filteredProducts = (() => {
 		let filtered = selectedCategoryId 
@@ -113,6 +121,74 @@
 			console.error('Failed to load product for editing:', error);
 		}
 	}
+
+	async function handleDeleteCategory(category: CategoryResponse, event: MouseEvent) {
+		event.stopPropagation();
+		
+		deletingCategory = category;
+		showDeleteCategoryDialog = true;
+		
+		// Check if category has products
+		const categoryProducts = products.filter(p => p.categoryId === String(category.id));
+		if (categoryProducts.length > 0) {
+			deleteError = $_('catalog.categoryHasProducts').replace('{count}', categoryProducts.length.toString());
+		} else {
+			deleteError = '';
+		}
+	}
+
+	async function confirmDeleteCategory() {
+		if (!deletingCategory) return;
+		
+		// Check if category has products - prevent deletion if it does
+		const categoryProducts = products.filter(p => p.categoryId === String(deletingCategory.id));
+		if (categoryProducts.length > 0) {
+			deleteError = $_('catalog.categoryHasProducts').replace('{count}', categoryProducts.length.toString());
+			return;
+		}
+		
+		try {
+			await categoriesApi.deleteCategory(deletingCategory.id);
+			// Reload categories and products
+			await Promise.all([loadCategories(), loadProducts()]);
+			
+			// Clear selection if deleted category was selected
+			if (selectedCategoryId === deletingCategory.id) {
+				selectedCategoryId = null;
+			}
+			
+			showDeleteCategoryDialog = false;
+			deletingCategory = null;
+			deleteError = '';
+		} catch (error: any) {
+			deleteError = error?.message || $_('catalog.failedToDeleteCategory');
+			console.error('Failed to delete category:', error);
+		}
+	}
+
+	async function handleDeleteProduct(product: Product, event: MouseEvent) {
+		event.stopPropagation();
+		deletingProduct = product;
+		showDeleteProductDialog = true;
+		deleteError = '';
+	}
+
+	async function confirmDeleteProduct() {
+		if (!deletingProduct) return;
+		
+		try {
+			await productsApi.deleteProduct(parseInt(deletingProduct.id));
+			// Reload products
+			await loadProducts();
+			
+			showDeleteProductDialog = false;
+			deletingProduct = null;
+			deleteError = '';
+		} catch (error: any) {
+			deleteError = error?.message || $_('catalog.failedToDeleteProduct');
+			console.error('Failed to delete product:', error);
+		}
+	}
 </script>
 
 <div class="space-y-6">
@@ -166,14 +242,24 @@
 								</div>
 							</button>
 							{#if canManageProducts}
-								<button
-									type="button"
-									class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-opacity"
-									on:click={(e) => handleEditCategory(category, e)}
-									title={$_('catalog.editCategory')}
-								>
-									<Edit class="w-4 h-4 text-gray-600" />
-								</button>
+								<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+									<button
+										type="button"
+										class="p-1 rounded hover:bg-gray-200 transition-colors"
+										on:click={(e) => handleEditCategory(category, e)}
+										title={$_('catalog.editCategory')}
+									>
+										<Edit class="w-4 h-4 text-gray-600" />
+									</button>
+									<button
+										type="button"
+										class="p-1 rounded hover:bg-red-100 transition-colors"
+										on:click={(e) => handleDeleteCategory(category, e)}
+										title={$_('catalog.deleteCategory')}
+									>
+										<Trash2 class="w-4 h-4 text-red-600" />
+									</button>
+								</div>
 							{/if}
 						</div>
 					{/each}
@@ -254,14 +340,24 @@
 									</div>
 								</div>
 								{#if canManageProducts}
-									<button
-										type="button"
-										class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-2 rounded-full bg-white shadow-md hover:bg-gray-50 transition-opacity z-10"
-										on:click={() => handleEditProduct(product)}
-										title={$_('catalog.editProduct')}
-									>
-										<Edit class="w-4 h-4 text-gray-600" />
-									</button>
+									<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex items-center gap-2 transition-opacity z-10">
+										<button
+											type="button"
+											class="p-2 rounded-full bg-white shadow-md hover:bg-gray-50 transition-colors"
+											on:click={() => handleEditProduct(product)}
+											title={$_('catalog.editProduct')}
+										>
+											<Edit class="w-4 h-4 text-gray-600" />
+										</button>
+										<button
+											type="button"
+											class="p-2 rounded-full bg-white shadow-md hover:bg-red-50 transition-colors"
+											on:click={(e) => handleDeleteProduct(product, e)}
+											title={$_('catalog.deleteProduct')}
+										>
+											<Trash2 class="w-4 h-4 text-red-600" />
+										</button>
+									</div>
 								{/if}
 								<div class="p-4">
 									<div class="flex items-start justify-between mb-2">
@@ -345,5 +441,76 @@
 		<EditCategoryModal bind:open={showEditCategoryModal} category={editingCategory} />
 		<EditProductModal bind:open={showEditProductModal} product={editingProduct} />
 	{/if}
+
+	<!-- Delete Category Dialog -->
+	<Dialog open={showDeleteCategoryDialog} title={$_('catalog.deleteCategoryTitle')} on:close={() => { showDeleteCategoryDialog = false; deletingCategory = null; deleteError = ''; }}>
+		<div class="space-y-4">
+			{#if deleteError}
+				<Alert variant="destructive">
+					<AlertDescription>{deleteError}</AlertDescription>
+				</Alert>
+			{:else}
+				<p class="text-gray-700">
+					{$_('catalog.confirmDeleteCategory')}
+				</p>
+				{#if deletingCategory}
+					<p class="text-sm font-medium text-gray-900">
+						{deletingCategory.name}
+					</p>
+				{/if}
+			{/if}
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button
+					variant="outline"
+					on:click={() => { showDeleteCategoryDialog = false; deletingCategory = null; deleteError = ''; }}
+				>
+					{$_('common.cancel')}
+				</Button>
+				{#if !deleteError}
+					<Button
+						variant="default"
+						className="bg-red-600 hover:bg-red-700"
+						on:click={confirmDeleteCategory}
+					>
+						{$_('common.delete')}
+					</Button>
+				{/if}
+			</div>
+		</div>
+	</Dialog>
+
+	<!-- Delete Product Dialog -->
+	<Dialog open={showDeleteProductDialog} title={$_('catalog.deleteProductTitle')} on:close={() => { showDeleteProductDialog = false; deletingProduct = null; deleteError = ''; }}>
+		<div class="space-y-4">
+			{#if deleteError}
+				<Alert variant="destructive">
+					<AlertDescription>{deleteError}</AlertDescription>
+				</Alert>
+			{/if}
+			<p class="text-gray-700">
+				{$_('catalog.confirmDeleteProduct')}
+			</p>
+			{#if deletingProduct}
+				<p class="text-sm font-medium text-gray-900">
+					{deletingProduct.name}
+				</p>
+			{/if}
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button
+					variant="outline"
+					on:click={() => { showDeleteProductDialog = false; deletingProduct = null; deleteError = ''; }}
+				>
+					{$_('common.cancel')}
+				</Button>
+				<Button
+					variant="default"
+					className="bg-red-600 hover:bg-red-700"
+					on:click={confirmDeleteProduct}
+				>
+					{$_('common.delete')}
+				</Button>
+			</div>
+		</div>
+	</Dialog>
 </div>
 
