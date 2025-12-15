@@ -1,3 +1,14 @@
+- Mobile app github:
+- https://github.com/DastanNK/bazarlink-mobile
+- Web app github:
+- https://github.com/kozhakhmetov004/bazarlink-web
+- Backend github:
+- https://github.com/dananaoo/bazarlink
+- Demo video of apps:
+- https://drive.google.com/file/d/1GOljAgxMX_Me6lNBkOaFN5lr8y8jsM0d/view?usp=sharing
+- Presentation:
+- https://drive.google.com/file/d/1L0tucaKs42mOAYTrk6b6b5LbcM_L6HMH/view?usp=sharing
+
 # Supplier Management Web App (SvelteKit)
 
 A modern Supplier Management Web Application built with SvelteKit, TypeScript, and Tailwind CSS. The application enables suppliers to manage their catalog, orders, team members, and link requests from buyers with a focus on performance, maintainability, and user experience.
@@ -86,28 +97,34 @@ User Action → Component → Store → API Client → Backend API
 ## Tech Stack
 
 ### Core Framework
+
 - **SvelteKit 2.0+**: Full-stack framework with SSR capabilities
 - **Svelte 4.2+**: Reactive UI framework
 - **TypeScript 5.0+**: Type-safe development
 
 ### Build Tools
+
 - **Vite 5.0+**: Fast build tool and dev server
 - **SvelteKit Adapter Auto**: Automatic adapter selection for deployment
 
 ### Styling
+
 - **Tailwind CSS 3.4+**: Utility-first CSS framework
 - **PostCSS**: CSS processing
 - **Autoprefixer**: Automatic vendor prefixing
 
 ### State Management
+
 - **Svelte Stores**: Built-in reactive state management
 - **svelte-i18n**: Internationalization store
 
 ### UI Libraries
+
 - **Lucide Svelte**: Icon library
 - **clsx & tailwind-merge**: Conditional class name utilities
 
 ### Development Tools
+
 - **svelte-check**: Type checking for Svelte components
 - **TypeScript**: Static type checking
 
@@ -170,8 +187,8 @@ frontend/
 │   │   ├── utils/                   # Utility functions
 │   │       ├── mappers.ts           # Data transformation utilities
 │   │       └── utils.ts             # General utilities
-│   │   
-│   │   
+│   │
+│   │
 │   │
 │   ├── routes/                      # SvelteKit file-based routing
 │   │   ├── +layout.svelte           # Root layout with auth guard
@@ -236,10 +253,10 @@ API calls are abstracted into service modules:
 ```typescript
 // Example: src/lib/api/products.ts
 export const productsApi = {
-  getProducts: (params) => apiClient.get('/products', { params }),
-  createProduct: (data) => apiClient.post('/products', data),
+  getProducts: (params) => apiClient.get("/products", { params }),
+  createProduct: (data) => apiClient.post("/products", data),
   updateProduct: (id, data) => apiClient.put(`/products/${id}`, data),
-  deleteProduct: (id) => apiClient.delete(`/products/${id}`)
+  deleteProduct: (id) => apiClient.delete(`/products/${id}`),
 };
 ```
 
@@ -281,17 +298,19 @@ interface AuthState {
 ```
 
 **Features:**
+
 - Persistent state via localStorage
 - Automatic token refresh on page load
 - Derived stores for `user` and `supplier`
 - Methods: `login()`, `logout()`, `register()`, `refresh()`, `updateSupplier()`
 
 **Usage:**
+
 ```typescript
-import { user, supplier, authStore } from '$lib/stores/auth';
+import { user, supplier, authStore } from "$lib/stores/auth";
 
 // Reactive access
-$: isOwner = $user?.role === 'owner';
+$: isOwner = $user?.role === "owner";
 
 // Actions
 await authStore.login(email, password);
@@ -319,11 +338,14 @@ Centralized HTTP client with the following features:
 - **Query Parameters**: Built-in URL parameter handling
 
 **Configuration:**
+
 ```typescript
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 ```
 
 **Methods:**
+
 - `get<T>(endpoint, options?)`: GET request
 - `post<T>(endpoint, data?, options?)`: POST request
 - `put<T>(endpoint, data?, options?)`: PUT request
@@ -346,15 +368,16 @@ Each domain has its own API service module:
 - **messages.ts**: Messaging system
 
 **Example Usage:**
+
 ```typescript
-import { productsApi } from '$lib/api/products';
+import { productsApi } from "$lib/api/products";
 
 // Fetch products
 const products = await productsApi.getProducts({ supplier_id: 123 });
 
 // Create product
 const newProduct = await productsApi.createProduct({
-  name: 'Product Name',
+  name: "Product Name",
   price: 1000,
   // ...
 });
@@ -393,8 +416,8 @@ SvelteKit uses file-based routing in the `src/routes/` directory:
 The root `+layout.svelte` implements authentication guard:
 
 ```typescript
-$: if (mounted && !isAuthenticated && currentPath !== '/login') {
-  goto('/login');
+$: if (mounted && !isAuthenticated && currentPath !== "/login") {
+  goto("/login");
 }
 ```
 
@@ -403,7 +426,7 @@ $: if (mounted && !isAuthenticated && currentPath !== '/login') {
 Components check user roles for conditional rendering:
 
 ```typescript
-$: canViewAnalytics = $user?.role === 'owner' || $user?.role === 'manager';
+$: canViewAnalytics = $user?.role === "owner" || $user?.role === "manager";
 ```
 
 ## Internationalization
@@ -430,6 +453,7 @@ The application uses `svelte-i18n` for internationalization:
 ### Translation Files
 
 Located in `src/lib/i18n/locales/`:
+
 - `en.json`: English translations
 - `ru.json`: Russian translations
 - `kz.json`: Kazakh translations
@@ -437,6 +461,7 @@ Located in `src/lib/i18n/locales/`:
 ### Language Switcher
 
 The `LanguageSwitcher` component allows users to change language:
+
 - Updates both store and localStorage
 - Immediately reflects changes across the app
 
@@ -478,32 +503,37 @@ Base UI components in `src/lib/components/ui/`:
 ### Installation
 
 1. **Clone the repository** (if not already done):
+
 ```bash
 cd frontend
 ```
 
 2. **Install dependencies**:
+
 ```bash
 npm install
 ```
 
 3. **Configure environment variables** (optional):
-Create a `.env` file in the frontend directory:
+   Create a `.env` file in the frontend directory:
+
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 4. **Start the development server**:
+
 ```bash
 npm run dev
 ```
 
 5. **Open your browser**:
-Navigate to `http://localhost:3000`
+   Navigate to `http://localhost:3000`
 
 ### Demo Credentials
 
 For testing purposes, you can use these credentials (if backend supports them):
+
 - **Owner**: `owner@supplier.com` (any password)
 - **Manager**: `manager@supplier.com` (any password)
 - **Sales Representative**: `sales@supplier.com` (any password)
@@ -521,27 +551,32 @@ For testing purposes, you can use these credentials (if backend supports them):
 ### Development Workflow
 
 1. **Create a feature branch**:
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 2. **Make changes**:
+
    - Add/modify components in `src/lib/components/`
    - Add/modify routes in `src/routes/`
    - Update API services in `src/lib/api/`
    - Update types in `src/lib/types/`
 
 3. **Type check**:
+
 ```bash
 npm run check
 ```
 
 4. **Test locally**:
+
 ```bash
 npm run dev
 ```
 
 5. **Build and preview**:
+
 ```bash
 npm run build
 npm run preview
@@ -566,14 +601,16 @@ npm run preview
 ### Build Process
 
 1. **Build the application**:
+
 ```bash
 npm run build
 ```
 
 2. **Output location**:
-The built application will be in the `.svelte-kit` directory (for SvelteKit adapter).
+   The built application will be in the `.svelte-kit` directory (for SvelteKit adapter).
 
 3. **Preview production build**:
+
 ```bash
 npm run preview
 ```
